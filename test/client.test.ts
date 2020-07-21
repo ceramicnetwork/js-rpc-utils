@@ -2,7 +2,7 @@ import { RPCClient, RPCError, SendRequestFunc } from '../src'
 
 describe('client', () => {
   test('has a createID() method generating a random string', () => {
-    const client = new RPCClient(jest.fn())
+    const client = new RPCClient({ send: jest.fn() })
     const id1 = client.createID()
     const id2 = client.createID()
     expect(typeof id1).toBe('string')
@@ -14,7 +14,7 @@ describe('client', () => {
       jsonrpc: '2.0',
       result: 'OK',
     })) as SendRequestFunc
-    const client = new RPCClient(send)
+    const client = new RPCClient({ send })
     const res = await client.request('test_method', 'hello')
     expect(send).toHaveBeenCalledTimes(1)
     expect(send).toHaveBeenCalledWith({
@@ -31,7 +31,7 @@ describe('client', () => {
       jsonrpc: '2.0',
       error: { code: 1, message: 'failed' },
     })) as SendRequestFunc
-    const client = new RPCClient(send)
+    const client = new RPCClient({ send })
     await expect(client.request('test_method', 'hello')).rejects.toThrow(
       RPCError,
     )

@@ -1,13 +1,13 @@
 import { nanoid } from 'nanoid'
 
 import { RPCError } from './error'
-import { SendRequestFunc } from './types'
+import { RPCConnection } from './types'
 
 export class RPCClient {
-  public send: SendRequestFunc
+  public connection: RPCConnection
 
-  constructor(send: SendRequestFunc) {
-    this.send = send
+  constructor(connection: RPCConnection) {
+    this.connection = connection
   }
 
   public createID(): string {
@@ -18,7 +18,7 @@ export class RPCClient {
     method: string,
     params?: P,
   ): Promise<R> {
-    const res = await this.send<P, R>({
+    const res = await this.connection.send<P, R>({
       jsonrpc: '2.0',
       id: this.createID(),
       method,

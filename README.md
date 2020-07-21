@@ -56,10 +56,10 @@ type SendRequestFunc = <P = any, R = any, E = any>(
 ) => Promise<RPCResponse<R, E>>
 ```
 
-### RPCProvider
+### RPCConnection
 
 ```ts
-interface RPCProvider {
+interface RPCConnection {
   send: SendRequestFunc
 }
 ```
@@ -187,7 +187,7 @@ Extends built-in `Error` class
 
 **Arguments**
 
-1. `send: SendRequestFunc`
+1. `connection: RPCConnection`
 
 #### .send()
 

@@ -24,6 +24,6 @@ export type SendRequestFunc = <P = any, R = any, E = any>(
   request: RPCRequest<P>,
 ) => Promise<RPCResponse<R, E>>
 
-export interface RPCProvider {
+export interface RPCConnection {
   send: SendRequestFunc
 }
