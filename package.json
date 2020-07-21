@@ -1,7 +1,7 @@
 {
   "name": "rpc-utils",
-  "author": "Paul Le Cam <paul@3box.io>",
   "version": "0.1.0",
+  "author": "Paul Le Cam <paul@3box.io>",
   "license": "MIT",
   "main": "dist/index.js",
   "module": "dist/rpc-utils.esm.js",
