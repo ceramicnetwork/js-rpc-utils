@@ -6,31 +6,31 @@ import {
 } from './error'
 import { RPCRequest, RPCResponse } from './types'
 
-export type ErrorHandler = <C = any, P = any>(
+export type ErrorHandler<C = any> = <P = any>(
   ctx: C,
   req: RPCRequest<P>,
   error: Error,
 ) => void
 
-export type MethodHandler = <C = any, P = any, R = any>(
+export type MethodHandler<C = any, P = any, R = any> = (
   ctx: C,
   params: P,
 ) => R | Promise<R>
 
-export type NotificationHandler = <C = any, P = any>(
+export type NotificationHandler<C = any> = <P = any>(
   ctx: C,
   req: RPCRequest<P>,
 ) => void
 
-export type HandlerMethods = Record<string, MethodHandler>
+export type HandlerMethods<C = any> = Record<string, MethodHandler<C>>
 
-export interface HandlerOptions {
-  onHandlerError?: ErrorHandler
-  onInvalidMessage?: NotificationHandler
-  onNotification?: NotificationHandler
+export interface HandlerOptions<C = any> {
+  onHandlerError?: ErrorHandler<C>
+  onInvalidMessage?: NotificationHandler<C>
+  onNotification?: NotificationHandler<C>
 }
 
-export type RequestHandler = <C = any, P = any, R = any, E = any>(
+export type RequestHandler<C = any> = <P = any, R = any, E = any>(
   ctx: C,
   msg: RPCRequest<P>,
 ) => Promise<RPCResponse<R, E> | null>
@@ -79,15 +79,15 @@ function fallbackOnNotification<C = any, P = any>(
   console.warn('Unhandled notification', msg)
 }
 
-export function createHandler(
-  methods: HandlerMethods,
-  options: HandlerOptions = {},
-): RequestHandler {
+export function createHandler<C = any>(
+  methods: HandlerMethods<C>,
+  options: HandlerOptions<C> = {},
+): RequestHandler<C> {
   const onHandlerError = options.onHandlerError ?? fallbackOnHandlerError
   const onInvalidMessage = options.onInvalidMessage ?? fallbackOnInvalidMessage
   const onNotification = options.onNotification ?? fallbackOnNotification
 
-  return async function handleRequest<C = any, P = any, R = any, E = any>(
+  return async function handleRequest<P = any, R = any, E = any>(
     ctx: C,
     msg: RPCRequest<P>,
   ): Promise<RPCResponse<R, E> | null> {
@@ -115,11 +115,11 @@ export function createHandler(
       const result = await handler(ctx, msg.params ?? {})
       return { jsonrpc: '2.0', id, result }
     } catch (err) {
-      onHandlerError(ctx, msg, err)
       let error
       if (err instanceof RPCError) {
         error = err.toObject()
       } else {
+        onHandlerError(ctx, msg, err)
         const code = err.code ?? -32000 // Server error
         error = { code, message: err.message || getErrorMessage(code) }
       }

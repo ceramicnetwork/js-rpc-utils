@@ -160,6 +160,9 @@ describe('server', () => {
       },
     })
 
+    // Throwing RPCError should not trigger onHandlerError
+    expect(onHandlerError).not.toHaveBeenCalled()
+
     const jsNoCodeErrorRes = await handle(
       { ctx: true },
       { jsonrpc: '2.0', id: 'js_no_code', method: 'jsErrorNoCode' },
@@ -199,6 +202,6 @@ describe('server', () => {
       },
     })
 
-    expect(onHandlerError).toHaveBeenCalledTimes(4)
+    expect(onHandlerError).toHaveBeenCalledTimes(3)
   })
 })

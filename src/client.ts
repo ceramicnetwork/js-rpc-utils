@@ -24,6 +24,9 @@ export class RPCClient {
       method,
       params,
     })
+    if (res == null) {
+      throw new Error('Missing response')
+    }
     if (res.error != null) {
       throw RPCError.fromObject(res.error)
     }

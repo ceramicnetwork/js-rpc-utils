@@ -67,7 +67,7 @@ interface RPCConnection {
 ### ErrorHandler
 
 ```ts
-type ErrorHandler = <C = any, P = any>(
+type ErrorHandler<C = any> = <P = any>(
   ctx: C,
   req: RPCRequest<P>,
   error: Error,
@@ -77,7 +77,7 @@ type ErrorHandler = <C = any, P = any>(
 ### MethodHandler
 
 ```ts
-type MethodHandler = <C = any, P = any, R = any>(
+type MethodHandler<C = any, P = any, R = any> = (
   ctx: C,
   params: P,
 ) => R | Promise<R>
@@ -86,7 +86,7 @@ type MethodHandler = <C = any, P = any, R = any>(
 ### NotificationHandler
 
 ```ts
-type NotificationHandler = <C = any, P = any>(
+type NotificationHandler<C = any> = <P = any>(
   ctx: C,
   req: RPCRequest<P>,
 ) => void
@@ -95,23 +95,23 @@ type NotificationHandler = <C = any, P = any>(
 ### HandlerMethods
 
 ```ts
-type HandlerMethods = Record<string, MethodHandler>
+type HandlerMethods<C = any> = Record<string, MethodHandler<C>>
 ```
 
 ### HandlerOptions
 
 ```ts
-interface HandlerOptions {
-  onHandlerError?: ErrorHandler
-  onInvalidMessage?: NotificationHandler
-  onNotification?: NotificationHandler
+interface HandlerOptions<C = any> {
+  onHandlerError?: ErrorHandler<C>
+  onInvalidMessage?: NotificationHandler<C>
+  onNotification?: NotificationHandler<C>
 }
 ```
 
 ### RequestHandler
 
 ```ts
-type RequestHandler = <C = any, P = any, R = any, E = any>(
+type RequestHandler<C = any> = <P = any, R = any, E = any>(
   ctx: C,
   msg: RPCRequest<P>,
 ) => Promise<RPCResponse<R, E> | null>
@@ -201,7 +201,7 @@ Extends built-in `Error` class
 
 1. `request: RPCRequest<P>`
 
-**Returns** `Promise<RPCResponse<R, E>>`
+**Returns** `Promise<RPCResponse<R, E> | null>`
 
 #### .request()
 
@@ -233,9 +233,21 @@ Extends built-in `Error` class
 
 ### createHandler()
 
+**Type parameters**
+
+1. `C = any`: the context type
+
 **Arguments**
 
-1. `methods: HandlerMethods`
-1. `options: HandlerOptions = {}`
+1. `methods: HandlerMethods<C>`
+1. `options: HandlerOptions<C> = {}`
 
-**Returns** `RequestHandler`
+**Returns** `RequestHandler<C>`
+
+**Options**
+
+- `onHandlerError: ErrorHandler<C>`: callback used when a method handler throws an `Error` other than `RPCError`.
+- `onInvalidMessage: NotificationHandler<C>`: callback used when receiving an invalid message, such as not having the `jsonrpc` field as `2.0` or missing the `method`.
+- `onNotification: NotificationHandler<C>`: callback used when receiving a JSON-RPC notification (no `id` present).
+
+When these options are not provided, fallbacks using `console.warn` will be called instead.

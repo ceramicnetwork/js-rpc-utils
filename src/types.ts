@@ -22,7 +22,7 @@ export interface RPCResponse<T = any, E = any> {
 
 export type SendRequestFunc = <P = any, R = any, E = any>(
   request: RPCRequest<P>,
-) => Promise<RPCResponse<R, E>>
+) => Promise<RPCResponse<R, E> | null>
 
 export interface RPCConnection {
   send: SendRequestFunc
