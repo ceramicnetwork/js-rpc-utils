@@ -7,7 +7,7 @@ import {
   createMethodNotFound,
   createParseError,
   isServerError,
-  getErrorMessage,
+  getErrorMessage
 } from '../src'
 
 describe('error', () => {

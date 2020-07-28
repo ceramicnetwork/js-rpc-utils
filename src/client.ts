@@ -16,13 +16,13 @@ export class RPCClient {
 
   public async request<P = any, R = any>(
     method: string,
-    params?: P,
+    params?: P
   ): Promise<R> {
     const res = await this.connection.send<P, R>({
       jsonrpc: '2.0',
       id: this.createID(),
       method,
-      params,
+      params
     })
     if (res == null) {
       throw new Error('Missing response')

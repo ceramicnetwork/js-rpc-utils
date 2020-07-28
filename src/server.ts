@@ -2,24 +2,24 @@ import {
   ERROR_CODE,
   RPCError,
   createParseError,
-  getErrorMessage,
+  getErrorMessage
 } from './error'
 import { RPCRequest, RPCResponse } from './types'
 
 export type ErrorHandler<C = any> = <P = any>(
   ctx: C,
   req: RPCRequest<P>,
-  error: Error,
+  error: Error
 ) => void
 
 export type MethodHandler<C = any, P = any, R = any> = (
   ctx: C,
-  params: P,
+  params: P
 ) => R | Promise<R>
 
 export type NotificationHandler<C = any> = <P = any>(
   ctx: C,
-  req: RPCRequest<P>,
+  req: RPCRequest<P>
 ) => void
 
 export type HandlerMethods<C = any> = Record<string, MethodHandler<C>>
@@ -32,7 +32,7 @@ export interface HandlerOptions<C = any> {
 
 export type RequestHandler<C = any> = <P = any, R = any, E = any>(
   ctx: C,
-  msg: RPCRequest<P>,
+  msg: RPCRequest<P>
 ) => Promise<RPCResponse<R, E> | null>
 
 export function parseJSON<T = any>(input: string): T {
@@ -45,19 +45,19 @@ export function parseJSON<T = any>(input: string): T {
 
 export function createErrorResponse<R, E>(
   id: number | string,
-  code: number,
+  code: number
 ): RPCResponse<R, E> {
   return {
     jsonrpc: '2.0',
     id,
-    error: { code, message: getErrorMessage(code) },
+    error: { code, message: getErrorMessage(code) }
   }
 }
 
 function fallbackOnHandlerError<C = any, P = any>(
   _ctx: C,
   msg: RPCRequest<P>,
-  error: Error,
+  error: Error
 ): void {
   // eslint-disable-next-line no-console
   console.warn('Unhandled handler error', msg, error)
@@ -65,7 +65,7 @@ function fallbackOnHandlerError<C = any, P = any>(
 
 function fallbackOnInvalidMessage<C = any, P = any>(
   _ctx: C,
-  msg: RPCRequest<P>,
+  msg: RPCRequest<P>
 ): void {
   // eslint-disable-next-line no-console
   console.warn('Unhandled invalid message', msg)
@@ -73,7 +73,7 @@ function fallbackOnInvalidMessage<C = any, P = any>(
 
 function fallbackOnNotification<C = any, P = any>(
   _ctx: C,
-  msg: RPCRequest<P>,
+  msg: RPCRequest<P>
 ): void {
   // eslint-disable-next-line no-console
   console.warn('Unhandled notification', msg)
@@ -81,7 +81,7 @@ function fallbackOnNotification<C = any, P = any>(
 
 export function createHandler<C = any>(
   methods: HandlerMethods<C>,
-  options: HandlerOptions<C> = {},
+  options: HandlerOptions<C> = {}
 ): RequestHandler<C> {
   const onHandlerError = options.onHandlerError ?? fallbackOnHandlerError
   const onInvalidMessage = options.onInvalidMessage ?? fallbackOnInvalidMessage
@@ -89,7 +89,7 @@ export function createHandler<C = any>(
 
   return async function handleRequest<P = any, R = any, E = any>(
     ctx: C,
-    msg: RPCRequest<P>,
+    msg: RPCRequest<P>
   ): Promise<RPCResponse<R, E> | null> {
     const id = msg.id
 

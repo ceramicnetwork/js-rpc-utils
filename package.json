@@ -21,10 +21,11 @@
     "prepare": "tsdx build"
   },
   "dependencies": {
-    "nanoid": "^3.1.10"
+    "nanoid": "^3.1.11"
   },
   "devDependencies": {
     "@types/nanoid": "^2.1.0",
+    "eslint-config-3box": "^0.1.1",
     "husky": "^4.2.5",
     "tsdx": "^0.13.2",
     "tslib": "^2.0.0",

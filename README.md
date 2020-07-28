@@ -53,7 +53,7 @@ interface RPCResponse<T = any, E = any> {
 ```ts
 type SendRequestFunc = <P = any, R = any, E = any>(
   request: RPCRequest<P>,
-) => Promise<RPCResponse<R, E>>
+) => Promise<RPCResponse<R, E> | null>
 ```
 
 ### RPCConnection
