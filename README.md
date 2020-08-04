@@ -1,4 +1,6 @@
 # RPC utils
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fceramicnetwork%2Fjs-rpc-utils.svg?type=shield)](https://app.fossa.com/projects/git%2Bgithub.com%2Fceramicnetwork%2Fjs-rpc-utils?ref=badge_shield)
+
 
 JSON-RPC 2.0 utilities
 
@@ -251,3 +253,7 @@ Extends built-in `Error` class
 - `onNotification: NotificationHandler<C>`: callback used when receiving a JSON-RPC notification (no `id` present).
 
 When these options are not provided, fallbacks using `console.warn` will be called instead.
+
+
+## License
+[![FOSSA Status](https://app.fossa.com/api/projects/git%2Bgithub.com%2Fceramicnetwork%2Fjs-rpc-utils.svg?type=large)](https://app.fossa.com/projects/git%2Bgithub.com%2Fceramicnetwork%2Fjs-rpc-utils?ref=badge_large)
