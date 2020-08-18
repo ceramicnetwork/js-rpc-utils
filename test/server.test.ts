@@ -54,10 +54,7 @@ describe('server', () => {
     })
 
     expect(onInvalidMessage).toHaveBeenCalledTimes(1)
-    expect(onInvalidMessage).toHaveBeenCalledWith(
-      { ctx: true },
-      { method: 'test' }
-    )
+    expect(onInvalidMessage).toHaveBeenCalledWith({ ctx: true }, { method: 'test' })
   })
 
   test('createHandler() handles invalid "method" key', async () => {
@@ -78,10 +75,7 @@ describe('server', () => {
     })
 
     expect(onInvalidMessage).toHaveBeenCalledTimes(1)
-    expect(onInvalidMessage).toHaveBeenCalledWith(
-      { ctx: true },
-      { jsonrpc: '2.0' }
-    )
+    expect(onInvalidMessage).toHaveBeenCalledWith({ ctx: true }, { jsonrpc: '2.0' })
   })
 
   test('createHandler() handles notifications', async () => {
@@ -90,19 +84,13 @@ describe('server', () => {
     const res = await handle({ ctx: true }, { jsonrpc: '2.0', method: 'test' })
     expect(res).toBeNull()
     expect(onNotification).toHaveBeenCalledTimes(1)
-    expect(onNotification).toHaveBeenCalledWith(
-      { ctx: true },
-      { jsonrpc: '2.0', method: 'test' }
-    )
+    expect(onNotification).toHaveBeenCalledWith({ ctx: true }, { jsonrpc: '2.0', method: 'test' })
   })
 
   test('createHandler() handles not found methods', async () => {
     const code = ERROR_CODE.METHOD_NOT_FOUND
     const handle = createHandler({})
-    const res = await handle(
-      { ctx: true },
-      { jsonrpc: '2.0', id: 'test', method: 'test' }
-    )
+    const res = await handle({ ctx: true }, { jsonrpc: '2.0', id: 'test', method: 'test' })
     expect(res).toEqual({
       jsonrpc: '2.0',
       id: 'test',
@@ -113,13 +101,26 @@ describe('server', () => {
   test('createHandler() handles successful handler return', async () => {
     const handle = createHandler({
       // @ts-ignore
-      test: jest.fn((ctx, { name }) => `hello ${name}`)
+      testAsync: jest.fn((ctx, { name }) => Promise.resolve(`hello ${name}`)),
+      // @ts-ignore
+      testSync: jest.fn((ctx, { name }) => `hello ${name}`)
     })
-    const res = await handle(
+
+    const resAsync = await handle(
       { ctx: true },
-      { jsonrpc: '2.0', id: 'test', method: 'test', params: { name: 'bob' } }
+      { jsonrpc: '2.0', id: 'test', method: 'testAsync', params: { name: 'alice' } }
     )
-    expect(res).toEqual({
+    expect(resAsync).toEqual({
+      jsonrpc: '2.0',
+      id: 'test',
+      result: 'hello alice'
+    })
+
+    const resSync = await handle(
+      { ctx: true },
+      { jsonrpc: '2.0', id: 'test', method: 'testSync', params: { name: 'bob' } }
+    )
+    expect(resSync).toEqual({
       jsonrpc: '2.0',
       id: 'test',
       result: 'hello bob'

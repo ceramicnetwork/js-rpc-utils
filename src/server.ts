@@ -1,26 +1,11 @@
-import {
-  ERROR_CODE,
-  RPCError,
-  createParseError,
-  getErrorMessage
-} from './error'
+import { ERROR_CODE, RPCError, createParseError, getErrorMessage } from './error'
 import { RPCRequest, RPCResponse } from './types'
 
-export type ErrorHandler<C = any> = <P = any>(
-  ctx: C,
-  req: RPCRequest<P>,
-  error: Error
-) => void
+export type ErrorHandler<C = any> = <P = any>(ctx: C, req: RPCRequest<P>, error: Error) => void
 
-export type MethodHandler<C = any, P = any, R = any> = (
-  ctx: C,
-  params: P
-) => R | Promise<R>
+export type MethodHandler<C = any, P = any, R = any> = (ctx: C, params: P) => R | Promise<R>
 
-export type NotificationHandler<C = any> = <P = any>(
-  ctx: C,
-  req: RPCRequest<P>
-) => void
+export type NotificationHandler<C = any> = <P = any>(ctx: C, req: RPCRequest<P>) => void
 
 export type HandlerMethods<C = any> = Record<string, MethodHandler<C>>
 
@@ -43,10 +28,7 @@ export function parseJSON<T = any>(input: string): T {
   }
 }
 
-export function createErrorResponse<R, E>(
-  id: number | string,
-  code: number
-): RPCResponse<R, E> {
+export function createErrorResponse<R, E>(id: number | string, code: number): RPCResponse<R, E> {
   return {
     jsonrpc: '2.0',
     id,
@@ -54,27 +36,17 @@ export function createErrorResponse<R, E>(
   }
 }
 
-function fallbackOnHandlerError<C = any, P = any>(
-  _ctx: C,
-  msg: RPCRequest<P>,
-  error: Error
-): void {
+function fallbackOnHandlerError<C = any, P = any>(_ctx: C, msg: RPCRequest<P>, error: Error): void {
   // eslint-disable-next-line no-console
   console.warn('Unhandled handler error', msg, error)
 }
 
-function fallbackOnInvalidMessage<C = any, P = any>(
-  _ctx: C,
-  msg: RPCRequest<P>
-): void {
+function fallbackOnInvalidMessage<C = any, P = any>(_ctx: C, msg: RPCRequest<P>): void {
   // eslint-disable-next-line no-console
   console.warn('Unhandled invalid message', msg)
 }
 
-function fallbackOnNotification<C = any, P = any>(
-  _ctx: C,
-  msg: RPCRequest<P>
-): void {
+function fallbackOnNotification<C = any, P = any>(_ctx: C, msg: RPCRequest<P>): void {
   // eslint-disable-next-line no-console
   console.warn('Unhandled notification', msg)
 }
@@ -112,7 +84,8 @@ export function createHandler<C = any>(
     }
 
     try {
-      const result = await handler(ctx, msg.params ?? {})
+      const handled = handler(ctx, msg.params ?? {})
+      const result = typeof handled.then === 'function' ? await handled : handled
       return { jsonrpc: '2.0', id, result }
     } catch (err) {
       let error

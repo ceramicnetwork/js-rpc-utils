@@ -52,7 +52,7 @@ interface RPCResponse<T = any, E = any> {
 
 ```ts
 type SendRequestFunc = <P = any, R = any, E = any>(
-  request: RPCRequest<P>,
+  request: RPCRequest<P>
 ) => Promise<RPCResponse<R, E> | null>
 ```
 
@@ -67,29 +67,19 @@ interface RPCConnection {
 ### ErrorHandler
 
 ```ts
-type ErrorHandler<C = any> = <P = any>(
-  ctx: C,
-  req: RPCRequest<P>,
-  error: Error,
-) => void
+type ErrorHandler<C = any> = <P = any>(ctx: C, req: RPCRequest<P>, error: Error) => void
 ```
 
 ### MethodHandler
 
 ```ts
-type MethodHandler<C = any, P = any, R = any> = (
-  ctx: C,
-  params: P,
-) => R | Promise<R>
+type MethodHandler<C = any, P = any, R = any> = (ctx: C, params: P) => R | Promise<R>
 ```
 
 ### NotificationHandler
 
 ```ts
-type NotificationHandler<C = any> = <P = any>(
-  ctx: C,
-  req: RPCRequest<P>,
-) => void
+type NotificationHandler<C = any> = <P = any>(ctx: C, req: RPCRequest<P>) => void
 ```
 
 ### HandlerMethods
@@ -113,7 +103,7 @@ interface HandlerOptions<C = any> {
 ```ts
 type RequestHandler<C = any> = <P = any, R = any, E = any>(
   ctx: C,
-  msg: RPCRequest<P>,
+  msg: RPCRequest<P>
 ) => Promise<RPCResponse<R, E> | null>
 ```
 
@@ -251,3 +241,7 @@ Extends built-in `Error` class
 - `onNotification: NotificationHandler<C>`: callback used when receiving a JSON-RPC notification (no `id` present).
 
 When these options are not provided, fallbacks using `console.warn` will be called instead.
+
+## License
+
+MIT
