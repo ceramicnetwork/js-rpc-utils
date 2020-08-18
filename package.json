@@ -1,6 +1,6 @@
 {
   "name": "rpc-utils",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "author": "Paul Le Cam <paul@3box.io>",
   "license": "MIT",
   "main": "dist/index.js",
@@ -21,14 +21,14 @@
     "prepare": "tsdx build"
   },
   "dependencies": {
-    "nanoid": "^3.1.11"
+    "nanoid": "^3.1.12"
   },
   "devDependencies": {
     "@types/nanoid": "^2.1.0",
-    "eslint-config-3box": "^0.1.1",
+    "eslint-config-3box": "^0.1.2",
     "husky": "^4.2.5",
     "tsdx": "^0.13.2",
-    "tslib": "^2.0.0",
+    "tslib": "^2.0.1",
     "typescript": "^3.9.7"
   },
   "husky": {

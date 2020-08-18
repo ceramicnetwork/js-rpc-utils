@@ -22,8 +22,7 @@ export function isServerError(code: number): boolean {
 
 export function getErrorMessage(code: number): string {
   return (
-    ERROR_MESSAGE[code.toString()] ??
-    (isServerError(code) ? 'Server error' : 'Application error')
+    ERROR_MESSAGE[code.toString()] ?? (isServerError(code) ? 'Server error' : 'Application error')
   )
 }
 
@@ -36,11 +35,7 @@ export class RPCError<T = any> extends Error {
   public data: T | undefined
   public message: string
 
-  public constructor(
-    code: number,
-    message?: string | undefined,
-    data?: T | undefined
-  ) {
+  public constructor(code: number, message?: string | undefined, data?: T | undefined) {
     super()
     Object.setPrototypeOf(this, RPCError.prototype)
 
@@ -66,11 +61,7 @@ function createErrorFactory(code: ERROR_CODE): <T>(data?: T) => RPCError<T> {
 }
 
 export const createParseError = createErrorFactory(ERROR_CODE.PARSE_ERROR)
-export const createInvalidRequest = createErrorFactory(
-  ERROR_CODE.INVALID_REQUEST
-)
-export const createMethodNotFound = createErrorFactory(
-  ERROR_CODE.METHOD_NOT_FOUND
-)
+export const createInvalidRequest = createErrorFactory(ERROR_CODE.INVALID_REQUEST)
+export const createMethodNotFound = createErrorFactory(ERROR_CODE.METHOD_NOT_FOUND)
 export const createInvalidParams = createErrorFactory(ERROR_CODE.INVALID_PARAMS)
 export const createInternalError = createErrorFactory(ERROR_CODE.INTERNAL_ERROR)

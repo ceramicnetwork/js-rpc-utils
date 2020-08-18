@@ -36,8 +36,6 @@ describe('client', () => {
       })
     }) as SendRequestFunc
     const client = new RPCClient({ send })
-    await expect(client.request('test_method', 'hello')).rejects.toThrow(
-      RPCError
-    )
+    await expect(client.request('test_method', 'hello')).rejects.toThrow(RPCError)
   })
 })
