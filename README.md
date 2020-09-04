@@ -244,4 +244,4 @@ When these options are not provided, fallbacks using `console.warn` will be call
 
 ## License
 
-MIT
+Apache-2.0 OR MIT
