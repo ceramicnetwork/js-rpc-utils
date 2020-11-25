@@ -1,27 +1,41 @@
 export type RPCID = string | number | null
 
-export interface RPCRequest<T = any> {
-  jsonrpc: string
-  method: string
-  id?: RPCID
-  params?: T | undefined
-}
+export type RPCParams = Record<string, unknown> | Array<unknown>
 
-export interface RPCErrorObject<T = any> {
+export type RPCRequest<M = string, P extends RPCParams | undefined = undefined> = {
+  jsonrpc: string
+  method: M
+  id?: RPCID
+} & (P extends undefined ? { params?: any } : { params: P })
+
+export type RPCErrorObject<D = undefined> = {
   code: number
-  message?: string | undefined
-  data?: T
-}
+  message?: string
+} & (D extends undefined ? { data?: undefined } : { data: D })
 
-export interface RPCResponse<T = any, E = any> {
+export type RPCErrorResponse<E = undefined> = {
   jsonrpc: string
-  id?: RPCID
-  result?: T
-  error?: RPCErrorObject<E>
+  id: RPCID
+  result?: never
+  error: RPCErrorObject<E>
 }
 
-export type SendRequestFunc = <P = any, R = any, E = any>(
-  request: RPCRequest<P>
+export type RPCResultResponse<R = unknown> = {
+  jsonrpc: string
+  id: RPCID
+  result: R
+  error?: never
+}
+
+export type RPCResponse<R = unknown, E = undefined> = RPCResultResponse<R> | RPCErrorResponse<E>
+
+export type SendRequestFunc = <
+  M = string,
+  P extends RPCParams | undefined = undefined,
+  R = undefined,
+  E = undefined
+>(
+  request: RPCRequest<M, P>
 ) => Promise<RPCResponse<R, E> | null>
 
 export interface RPCConnection {

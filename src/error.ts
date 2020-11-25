@@ -26,7 +26,7 @@ export function getErrorMessage(code: number): string {
   )
 }
 
-export class RPCError<T = any> extends Error {
+export class RPCError<T = undefined> extends Error {
   public static fromObject<D = any>(err: RPCErrorObject<D>): RPCError<D> {
     return new RPCError<D>(err.code, err.message, err.data)
   }
@@ -35,7 +35,7 @@ export class RPCError<T = any> extends Error {
   public data: T | undefined
   public message: string
 
-  public constructor(code: number, message?: string | undefined, data?: T | undefined) {
+  public constructor(code: number, message?: string, data?: T) {
     super()
     Object.setPrototypeOf(this, RPCError.prototype)
 
@@ -44,12 +44,12 @@ export class RPCError<T = any> extends Error {
     this.message = message ?? getErrorMessage(code)
   }
 
-  public toObject(): RPCErrorObject<T> {
+  public toObject<U = T>(): RPCErrorObject<U | undefined> {
     return {
       code: this.code,
       data: this.data,
       message: this.message
-    }
+    } as RPCErrorObject<U | undefined>
   }
 }
 

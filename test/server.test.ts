@@ -1,7 +1,10 @@
+/* eslint-disable @typescript-eslint/ban-ts-comment */
+
 import {
   ERROR_CODE,
   ERROR_MESSAGE,
   RPCError,
+  RPCRequest,
   createErrorResponse,
   createHandler,
   parseJSON
@@ -13,11 +16,11 @@ describe('server', () => {
   })
 
   test('parseJSON() throws a parse error RPCError if parsing fails', () => {
-    let error
+    let error: RPCError
     try {
       parseJSON('{"ok":false')
     } catch (err) {
-      error = err
+      error = err as RPCError
     }
     const code = ERROR_CODE.PARSE_ERROR
     expect(error instanceof RPCError).toBe(true)
@@ -42,10 +45,11 @@ describe('server', () => {
     const onInvalidMessage = jest.fn()
     const handle = createHandler({}, { onInvalidMessage })
 
-    // @ts-expect-error
+    // @ts-expect-error missing jsonrpc
     const res1 = await handle({ ctx: true }, { method: 'test' })
     expect(res1).toBeNull()
 
+    // @ts-expect-error invalid jsonrpc
     const res2 = await handle({}, { jsonrpc: '2', id: 'test', method: 'test' })
     expect(res2).toEqual({
       jsonrpc: '2.0',
@@ -62,11 +66,11 @@ describe('server', () => {
     const onInvalidMessage = jest.fn()
     const handle = createHandler({}, { onInvalidMessage })
 
-    // @ts-expect-error
+    // @ts-expect-error missing method
     const res1 = await handle({ ctx: true }, { jsonrpc: '2.0' })
     expect(res1).toBeNull()
 
-    // @ts-expect-error
+    // @ts-expect-error missing method
     const res2 = await handle({}, { jsonrpc: '2.0', id: 'test' })
     expect(res2).toEqual({
       jsonrpc: '2.0',
@@ -81,16 +85,23 @@ describe('server', () => {
   test('createHandler() handles notifications', async () => {
     const onNotification = jest.fn()
     const handle = createHandler({}, { onNotification })
-    const res = await handle({ ctx: true }, { jsonrpc: '2.0', method: 'test' })
+    const res = await handle({ ctx: true }, { jsonrpc: '2.0', method: 'test' } as RPCRequest)
     expect(res).toBeNull()
     expect(onNotification).toHaveBeenCalledTimes(1)
-    expect(onNotification).toHaveBeenCalledWith({ ctx: true }, { jsonrpc: '2.0', method: 'test' })
+    expect(onNotification).toHaveBeenCalledWith({ ctx: true }, {
+      jsonrpc: '2.0',
+      method: 'test'
+    } as RPCRequest)
   })
 
   test('createHandler() handles not found methods', async () => {
     const code = ERROR_CODE.METHOD_NOT_FOUND
     const handle = createHandler({})
-    const res = await handle({ ctx: true }, { jsonrpc: '2.0', id: 'test', method: 'test' })
+    const res = await handle({ ctx: true }, {
+      jsonrpc: '2.0',
+      id: 'test',
+      method: 'test'
+    } as RPCRequest)
     expect(res).toEqual({
       jsonrpc: '2.0',
       id: 'test',
@@ -100,10 +111,8 @@ describe('server', () => {
 
   test('createHandler() handles successful handler return', async () => {
     const handle = createHandler({
-      // @ts-ignore
-      testAsync: jest.fn((ctx, { name }) => Promise.resolve(`hello ${name}`)),
-      // @ts-ignore
-      testSync: jest.fn((ctx, { name }) => `hello ${name}`)
+      testAsync: jest.fn((ctx, { name }: { name: string }) => Promise.resolve(`hello ${name}`)),
+      testSync: jest.fn((ctx, { name }: { name: string }) => `hello ${name}`)
     })
 
     const resAsync = await handle(
@@ -150,10 +159,11 @@ describe('server', () => {
       { onHandlerError }
     )
 
-    const rpcErrorRes = await handle(
-      { ctx: true },
-      { jsonrpc: '2.0', id: 'rpc', method: 'rpcError' }
-    )
+    const rpcErrorRes = await handle({ ctx: true }, {
+      jsonrpc: '2.0',
+      id: 'rpc',
+      method: 'rpcError'
+    } as RPCRequest)
     expect(rpcErrorRes).toEqual({
       jsonrpc: '2.0',
       id: 'rpc',
@@ -166,10 +176,11 @@ describe('server', () => {
     // Throwing RPCError should not trigger onHandlerError
     expect(onHandlerError).not.toHaveBeenCalled()
 
-    const jsNoCodeErrorRes = await handle(
-      { ctx: true },
-      { jsonrpc: '2.0', id: 'js_no_code', method: 'jsErrorNoCode' }
-    )
+    const jsNoCodeErrorRes = await handle({ ctx: true }, {
+      jsonrpc: '2.0',
+      id: 'js_no_code',
+      method: 'jsErrorNoCode'
+    } as RPCRequest)
     expect(jsNoCodeErrorRes).toEqual({
       jsonrpc: '2.0',
       id: 'js_no_code',
@@ -179,10 +190,11 @@ describe('server', () => {
       }
     })
 
-    const jsWithCodeErrorRes = await handle(
-      { ctx: true },
-      { jsonrpc: '2.0', id: 'js_with_code', method: 'jsErrorWithCode' }
-    )
+    const jsWithCodeErrorRes = await handle({ ctx: true }, {
+      jsonrpc: '2.0',
+      id: 'js_with_code',
+      method: 'jsErrorWithCode'
+    } as RPCRequest)
     expect(jsWithCodeErrorRes).toEqual({
       jsonrpc: '2.0',
       id: 'js_with_code',
@@ -192,10 +204,11 @@ describe('server', () => {
       }
     })
 
-    const jsNoMessageErrorRes = await handle(
-      { ctx: true },
-      { jsonrpc: '2.0', id: 'js_no_message', method: 'jsErrorNoMessage' }
-    )
+    const jsNoMessageErrorRes = await handle({ ctx: true }, {
+      jsonrpc: '2.0',
+      id: 'js_no_message',
+      method: 'jsErrorNoMessage'
+    } as RPCRequest)
     expect(jsNoMessageErrorRes).toEqual({
       jsonrpc: '2.0',
       id: 'js_no_message',

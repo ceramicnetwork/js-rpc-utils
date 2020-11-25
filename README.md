@@ -16,43 +16,69 @@ npm install rpc-utils
 type RPCID = string | number | null
 ```
 
+### RPCParams
+
+```ts
+type RPCParams = Record<string, unknown> | Array<unknown>
+```
+
 ### RPCRequest
 
 ```ts
-interface RPCRequest<T = any> {
+type RPCRequest<M = string, P extends RPCParams | undefined = undefined> = {
   jsonrpc: string
-  method: string
+  method: M
   id?: RPCID
-  params?: T | undefined
-}
+} & (P extends undefined ? { params?: any } : { params: P })
 ```
 
 ### RPCErrorObject
 
 ```ts
-interface RPCErrorObject<T = any> {
+type RPCErrorObject<D = undefined> = {
   code: number
-  message?: string | undefined
-  data?: T
+  message?: string
+} & (D extends undefined ? { data?: undefined } : { data: D })
+```
+
+### RPCErrorResponse
+
+```ts
+type RPCErrorResponse<E = undefined> = {
+  jsonrpc: string
+  id: RPCID
+  result?: never
+  error: RPCErrorObject<E>
+}
+```
+
+### RPCResultResponse
+
+```ts
+type RPCResultResponse<R = unknown> = {
+  jsonrpc: string
+  id: RPCID
+  result: R
+  error?: never
 }
 ```
 
 ### RPCResponse
 
 ```ts
-interface RPCResponse<T = any, E = any> {
-  jsonrpc: string
-  id?: RPCID
-  result?: T
-  error?: RPCErrorObject<E>
-}
+type RPCResponse<R = unknown, E = undefined> = RPCResultResponse<R> | RPCErrorResponse<E>
 ```
 
 ### SendRequestFunc
 
 ```ts
-type SendRequestFunc = <P = any, R = any, E = any>(
-  request: RPCRequest<P>
+type SendRequestFunc = <
+  M = string,
+  P extends RPCParams | undefined = undefined,
+  R = undefined,
+  E = undefined
+>(
+  request: RPCRequest<M, P>
 ) => Promise<RPCResponse<R, E> | null>
 ```
 
@@ -67,19 +93,29 @@ interface RPCConnection {
 ### ErrorHandler
 
 ```ts
-type ErrorHandler<C = any> = <P = any>(ctx: C, req: RPCRequest<P>, error: Error) => void
+type ErrorHandler<C = unknown, M = string> = <P extends RPCParams | undefined>(
+  ctx: C,
+  req: RPCRequest<M, P>,
+  error: Error
+) => void
 ```
 
 ### MethodHandler
 
 ```ts
-type MethodHandler<C = any, P = any, R = any> = (ctx: C, params: P) => R | Promise<R>
+type MethodHandler<C = unknown, P extends RPCParams | undefined = undefined, R = unknown> = (
+  ctx: C,
+  params?: P
+) => R | Promise<R>
 ```
 
 ### NotificationHandler
 
 ```ts
-type NotificationHandler<C = any> = <P = any>(ctx: C, req: RPCRequest<P>) => void
+type NotificationHandler<C = unknown, M = string> = <P extends RPCParams | undefined>(
+  ctx: C,
+  req: RPCRequest<M, P>
+) => void
 ```
 
 ### HandlerMethods
@@ -101,10 +137,10 @@ interface HandlerOptions<C = any> {
 ### RequestHandler
 
 ```ts
-type RequestHandler<C = any> = <P = any, R = any, E = any>(
+type RequestHandler<C = any, M = string> = <P extends RPCParams | undefined, R, E>(
   ctx: C,
-  msg: RPCRequest<P>
-) => Promise<RPCResponse<R, E> | null>
+  msg: RPCRequest<M, P | undefined>
+) => Promise<RPCResponse<R, E | undefined> | null>
 ```
 
 ## Error APIs
@@ -161,7 +197,7 @@ Extends built-in `Error` class
 
 **Type parameters**
 
-1. `D = any`: the type of the `data` attached to the error
+1. `D = unknown`: the type of the `data` attached to the error
 
 **Arguments**
 
@@ -183,26 +219,29 @@ Extends built-in `Error` class
 
 **Type parameters**
 
-1. `P = any`: the request parameters
-1. `R = any`: the response result
-1. `E = any`: the response error
+1. `M = string`: the request `method`
+1. `P extends RPCParams | undefined = undefined`: the request `params`
+1. `R = unknown`: the response `result`
+1. `E = undefined`: the response error `data`
 
 **Arguments**
 
-1. `request: RPCRequest<P>`
+1. `request: RPCRequest<M, P>`
 
-**Returns** `Promise<RPCResponse<R, E> | null>`
+**Returns** `Promise<RPCResponse<R, E | undefined> | null>`
 
 #### .request()
 
 **Type parameters**
 
-1. `P = any`: the request parameters
-1. `R = any`: the response result
+1. `M = string`: the request `method`
+1. `P extends RPCParams | undefined = undefined`: the request `params`
+1. `R = unknown`: the response `result`
+1. `E = undefined`: the response error `data`
 
 **Arguments**
 
-1. `method: string`
+1. `method: M`
 1. `params: P`
 
 **Returns** `Promise<R>` or throws a `RPCError` instance if the request fails
@@ -225,20 +264,21 @@ Extends built-in `Error` class
 
 **Type parameters**
 
-1. `C = any`: the context type
+1. `C = unknown`: the context type
+1. `M = string`: the `methods` keys
 
 **Arguments**
 
 1. `methods: HandlerMethods<C>`
 1. `options: HandlerOptions<C> = {}`
 
-**Returns** `RequestHandler<C>`
+**Returns** `RequestHandler<C, M>`
 
 **Options**
 
 - `onHandlerError: ErrorHandler<C>`: callback used when a method handler throws an `Error` other than `RPCError`.
-- `onInvalidMessage: NotificationHandler<C>`: callback used when receiving an invalid message, such as not having the `jsonrpc` field as `2.0` or missing the `method`.
-- `onNotification: NotificationHandler<C>`: callback used when receiving a JSON-RPC notification (no `id` present).
+- `onInvalidMessage: NotificationHandler<C, M>`: callback used when receiving an invalid message, such as not having the `jsonrpc` field as `2.0` or missing the `method`.
+- `onNotification: NotificationHandler<C, M>`: callback used when receiving a JSON-RPC notification (no `id` present).
 
 When these options are not provided, fallbacks using `console.warn` will be called instead.
 
