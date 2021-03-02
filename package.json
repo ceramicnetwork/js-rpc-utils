@@ -1,6 +1,6 @@
 {
   "name": "rpc-utils",
-  "version": "0.2.0",
+  "version": "0.3.0",
   "author": "Paul Le Cam <paul@3box.io>",
   "license": "(Apache-2.0 OR MIT)",
   "main": "dist/index.js",
@@ -23,17 +23,19 @@
     "analyze": "size-limit --why"
   },
   "dependencies": {
-    "nanoid": "^3.1.18"
+    "nanoid": "^3.1.20"
   },
   "devDependencies": {
-    "@size-limit/preset-small-lib": "^4.9.0",
+    "@size-limit/preset-small-lib": "^4.9.2",
     "@types/nanoid": "^2.1.0",
+    "eslint": "^7.21.0",
     "eslint-config-3box": "^0.2.0",
-    "husky": "^4.3.0",
-    "size-limit": "^4.9.0",
+    "husky": "^5.1.3",
+    "prettier": "^2.2.1",
+    "size-limit": "^4.9.2",
     "tsdx": "^0.14.1",
-    "tslib": "^2.0.3",
-    "typescript": "^4.1.2"
+    "tslib": "^2.1.0",
+    "typescript": "^4.2.2"
   },
   "husky": {
     "hooks": {

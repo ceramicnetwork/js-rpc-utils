@@ -7,7 +7,7 @@ import {
   createMethodNotFound,
   createParseError,
   isServerError,
-  getErrorMessage
+  getErrorMessage,
 } from '../src'
 
 describe('error', () => {
@@ -36,7 +36,7 @@ describe('error', () => {
   })
 
   test('getErrorMessage() returns the error message for the provided code', () => {
-    Object.keys(ERROR_MESSAGE).forEach(code => {
+    Object.keys(ERROR_MESSAGE).forEach((code) => {
       expect(getErrorMessage(parseInt(code, 10))).toBe(ERROR_MESSAGE[code])
     })
     expect(getErrorMessage(-32067)).toBe('Server error')

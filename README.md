@@ -8,7 +8,7 @@ JSON-RPC 2.0 utilities
 npm install rpc-utils
 ```
 
-## Types and interfaces
+## Types
 
 ### RPCID
 
@@ -22,43 +22,61 @@ type RPCID = string | number | null
 type RPCParams = Record<string, unknown> | Array<unknown>
 ```
 
+### RPCMethodTypes
+
+```ts
+type RPCMethodTypes = {
+  params?: RPCParams
+  result?: unknown
+  error?: undefined
+}
+```
+
+### RPCMethods
+
+```ts
+type RPCMethods = Record<string, RPCMethodTypes>
+```
+
 ### RPCRequest
 
 ```ts
-type RPCRequest<M = string, P extends RPCParams | undefined = undefined> = {
+type RPCRequest<Methods extends RPCMethods, MethodName extends keyof Methods> = {
   jsonrpc: string
-  method: M
+  method: MethodName
+  params: Methods[MethodName]['params']
   id?: RPCID
-} & (P extends undefined ? { params?: any } : { params: P })
+}
 ```
 
 ### RPCErrorObject
 
 ```ts
-type RPCErrorObject<D = undefined> = {
+type RPCErrorObject<Data = undefined> = {
   code: number
+  data?: Data
   message?: string
-} & (D extends undefined ? { data?: undefined } : { data: D })
+}
 ```
 
 ### RPCErrorResponse
 
 ```ts
-type RPCErrorResponse<E = undefined> = {
+type RPCErrorResponse<ErrorData = undefined> = {
   jsonrpc: string
   id: RPCID
   result?: never
-  error: RPCErrorObject<E>
+  error: RPCErrorObject<ErrorData>
 }
 ```
 
 ### RPCResultResponse
 
 ```ts
-type RPCResultResponse<R = unknown> = {
+type RPCResultResponse<Result = unknown> = {
   jsonrpc: string
   id: RPCID
-  result: R
+  result: Result
   error?: never
 }
 ```
@@ -66,36 +84,33 @@ type RPCResultResponse<R = unknown> = {
 ### RPCResponse
 
 ```ts
-type RPCResponse<R = unknown, E = undefined> = RPCResultResponse<R> | RPCErrorResponse<E>
+type RPCResponse<Methods extends RPCMethods, K extends keyof Methods> =
+  | RPCResultResponse<Methods[K]['result']>
+  | RPCErrorResponse<Methods[K]['error']>
 ```
 
 ### SendRequestFunc
 
 ```ts
-type SendRequestFunc = <
-  M = string,
-  P extends RPCParams | undefined = undefined,
-  R = undefined,
-  E = undefined
->(
-  request: RPCRequest<M, P>
-) => Promise<RPCResponse<R, E> | null>
+type SendRequestFunc<Methods extends RPCMethods> = <K extends keyof Methods>(
+  request: RPCRequest<Methods, K>
+) => Promise<RPCResponse<Methods, K> | null>
 ```
 
 ### RPCConnection
 
 ```ts
-interface RPCConnection {
-  send: SendRequestFunc
+type RPCConnection<Methods extends RPCMethods> = {
+  send: SendRequestFunc<Methods>
 }
 ```
 
 ### ErrorHandler
 
 ```ts
-type ErrorHandler<C = unknown, M = string> = <P extends RPCParams | undefined>(
-  ctx: C,
-  req: RPCRequest<M, P>,
+type ErrorHandler<Context, Methods extends RPCMethods> = <K extends keyof Methods>(
+  ctx: Context,
+  req: RPCRequest<Methods, K>,
   error: Error
 ) => void
 ```
@@ -103,44 +118,37 @@ type ErrorHandler<C = unknown, M = string> = <P extends RPCParams | undefined>(
 ### MethodHandler
 
 ```ts
-type MethodHandler<C = unknown, P extends RPCParams | undefined = undefined, R = unknown> = (
-  ctx: C,
-  params?: P
-) => R | Promise<R>
+type MethodHandler<Context, Params, Result> = (
+  ctx: Context,
+  params?: Params
+) => Result | Promise<Result>
 ```
 
 ### NotificationHandler
 
 ```ts
-type NotificationHandler<C = unknown, M = string> = <P extends RPCParams | undefined>(
-  ctx: C,
-  req: RPCRequest<M, P>
+type NotificationHandler<Context, Methods extends RPCMethods> = <K extends keyof Methods>(
+  ctx: Context,
+  req: RPCRequest<Methods, K>
 ) => void
 ```
 
 ### HandlerMethods
 
 ```ts
-type HandlerMethods<C = any> = Record<string, MethodHandler<C>>
+type HandlerMethods<Context, Methods extends RPCMethods> = {
+  [K in keyof Methods]: MethodHandler<Context, Methods[K]['params'], Methods[K]['result']>
+}
 ```
 
 ### HandlerOptions
 
 ```ts
-interface HandlerOptions<C = any> {
-  onHandlerError?: ErrorHandler<C>
-  onInvalidMessage?: NotificationHandler<C>
-  onNotification?: NotificationHandler<C>
+type HandlerOptions<Context, Methods extends RPCMethods> = {
+  onHandlerError?: ErrorHandler<Context, Methods>
+  onInvalidMessage?: NotificationHandler<Context, Methods>
+  onNotification?: NotificationHandler<Context, Methods>
 }
-```
-
-### RequestHandler
-
-```ts
-type RequestHandler<C = any, M = string> = <P extends RPCParams | undefined, R, E>(
-  ctx: C,
-  msg: RPCRequest<M, P | undefined>
-) => Promise<RPCResponse<R, E | undefined> | null>
 ```
 
 ## Error APIs
@@ -167,7 +175,7 @@ Extends built-in `Error` class
 
 **Type parameters**
 
-1. `T = any`: the type of the `data` attached to the error
+1. `Data = any`: the type of the `data` attached to the error
 
 #### new RPCError()
 
@@ -175,7 +183,7 @@ Extends built-in `Error` class
 
 1. `code: number`
 1. `message?: string | undefined`: if not set, will use `getErrorMessage()`
-1. `data?: T | undefined`
+1. `data?: Data | undefined`
 
 #### .code
 
@@ -187,64 +195,62 @@ Extends built-in `Error` class
 
 #### .data
 
-**Returns** `T | undefined`
+**Returns** `Data | undefined`
 
 #### .toObject()
 
-**Returns** `RPCErrorObject<T>`
+**Returns** `RPCErrorObject<Data>`
 
 #### RPCError.fromObject()
 
 **Type parameters**
 
-1. `D = unknown`: the type of the `data` attached to the error
+1. `Data = unknown`: the type of the `data` attached to the error
 
 **Arguments**
 
-1. `error: RPCErrorObject<D>`
+1. `error: RPCErrorObject<Data>`
 
-**Returns** `RPCError<D>`
+**Returns** `RPCError<Data>`
 
 ## Client APIs
 
 ### RPCClient class
 
+**Type parameters**
+
+1. `Methods extends RPCMethods`: the methods supported by the RPC server
+
 #### new RPCClient()
 
 **Arguments**
 
-1. `connection: RPCConnection`
+1. `connection: RPCConnection<Methods>`
 
 #### .send()
 
 **Type parameters**
 
-1. `M = string`: the request `method`
-1. `P extends RPCParams | undefined = undefined`: the request `params`
-1. `R = unknown`: the response `result`
-1. `E = undefined`: the response error `data`
+1. `MethodName extends keyof Methods`: the request `method`
 
 **Arguments**
 
-1. `request: RPCRequest<M, P>`
+1. `request: RPCRequest<Methods, MethodName>`
 
-**Returns** `Promise<RPCResponse<R, E | undefined> | null>`
+**Returns** `Promise<RPCResponse<Methods, MethodName> | null>`
 
 #### .request()
 
 **Type parameters**
 
-1. `M = string`: the request `method`
-1. `P extends RPCParams | undefined = undefined`: the request `params`
-1. `R = unknown`: the response `result`
-1. `E = undefined`: the response error `data`
+1. `MethodName extends keyof Methods`: the request `method`
 
 **Arguments**
 
-1. `method: M`
-1. `params: P`
+1. `method: MethodName`
+1. `params: Methods[MethodName]['params']`
 
-**Returns** `Promise<R>` or throws a `RPCError` instance if the request fails
+**Returns** `Promise<Methods[MethodName]['result']>` or throws a `RPCError` instance if the request fails
 
 ## Server APIs
 
@@ -264,21 +270,21 @@ Extends built-in `Error` class
 
 **Type parameters**
 
-1. `C = unknown`: the context type
-1. `M = string`: the `methods` keys
+1. `Context`: the context type
+1. `Methods extends RPCMethods`: the methods and APIs types
 
 **Arguments**
 
-1. `methods: HandlerMethods<C>`
-1. `options: HandlerOptions<C> = {}`
+1. `methods: HandlerMethods<Context, Methods>`
+1. `options: HandlerOptions<Context, Methods> = {}`
 
-**Returns** `RequestHandler<C, M>`
+**Returns** `<K extends keyof Methods>(ctx: Context, msg: RPCRequest<Methods, K>): Promise<RPCResponse<Methods, K> | null>` request handler function
 
 **Options**
 
-- `onHandlerError: ErrorHandler<C>`: callback used when a method handler throws an `Error` other than `RPCError`.
-- `onInvalidMessage: NotificationHandler<C, M>`: callback used when receiving an invalid message, such as not having the `jsonrpc` field as `2.0` or missing the `method`.
-- `onNotification: NotificationHandler<C, M>`: callback used when receiving a JSON-RPC notification (no `id` present).
+- `onHandlerError: ErrorHandler<Context, Methods>`: callback used when a method handler throws an `Error` other than `RPCError`.
+- `onInvalidMessage: NotificationHandler<Context, Methods>`: callback used when receiving an invalid message, such as not having the `jsonrpc` field as `2.0` or missing the `method`.
+- `onNotification: NotificationHandler<Context, Methods>`: callback used when receiving a JSON-RPC notification (no `id` present).
 
 When these options are not provided, fallbacks using `console.warn` will be called instead.
 

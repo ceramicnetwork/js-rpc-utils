@@ -1,11 +1,11 @@
-import { RPCErrorObject } from './types'
+import type { RPCErrorObject } from './types'
 
 export enum ERROR_CODE {
   PARSE_ERROR = -32700,
   INVALID_REQUEST = -32600,
   METHOD_NOT_FOUND = -32601,
   INVALID_PARAMS = -32602,
-  INTERNAL_ERROR = -32603
+  INTERNAL_ERROR = -32603,
 }
 
 export const ERROR_MESSAGE: Record<string, string> = {
@@ -13,7 +13,7 @@ export const ERROR_MESSAGE: Record<string, string> = {
   [ERROR_CODE.INVALID_REQUEST]: 'Invalid request',
   [ERROR_CODE.METHOD_NOT_FOUND]: 'Method not found',
   [ERROR_CODE.INVALID_PARAMS]: 'Invalid params',
-  [ERROR_CODE.INTERNAL_ERROR]: 'Internal error'
+  [ERROR_CODE.INTERNAL_ERROR]: 'Internal error',
 }
 
 export function isServerError(code: number): boolean {
@@ -27,15 +27,15 @@ export function getErrorMessage(code: number): string {
 }
 
 export class RPCError<T = undefined> extends Error {
-  public static fromObject<D = any>(err: RPCErrorObject<D>): RPCError<D> {
+  static fromObject<D = any>(err: RPCErrorObject<D>): RPCError<D> {
     return new RPCError<D>(err.code, err.message, err.data)
   }
 
-  public code: number
-  public data: T | undefined
-  public message: string
+  code: number
+  data: T | undefined
+  message: string
 
-  public constructor(code: number, message?: string, data?: T) {
+  constructor(code: number, message?: string, data?: T) {
     super()
     Object.setPrototypeOf(this, RPCError.prototype)
 
@@ -44,11 +44,11 @@ export class RPCError<T = undefined> extends Error {
     this.message = message ?? getErrorMessage(code)
   }
 
-  public toObject<U = T>(): RPCErrorObject<U | undefined> {
+  toObject<U = T>(): RPCErrorObject<U | undefined> {
     return {
       code: this.code,
       data: this.data,
-      message: this.message
+      message: this.message,
     } as RPCErrorObject<U | undefined>
   }
 }

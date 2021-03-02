@@ -7,7 +7,7 @@ import {
   RPCRequest,
   createErrorResponse,
   createHandler,
-  parseJSON
+  parseJSON,
 } from '../src'
 
 describe('server', () => {
@@ -35,8 +35,8 @@ describe('server', () => {
       id: 'test',
       error: {
         code,
-        message: ERROR_MESSAGE[code]
-      }
+        message: ERROR_MESSAGE[code],
+      },
     })
   })
 
@@ -54,7 +54,7 @@ describe('server', () => {
     expect(res2).toEqual({
       jsonrpc: '2.0',
       id: 'test',
-      error: { code, message: ERROR_MESSAGE[code] }
+      error: { code, message: ERROR_MESSAGE[code] },
     })
 
     expect(onInvalidMessage).toHaveBeenCalledTimes(1)
@@ -75,7 +75,7 @@ describe('server', () => {
     expect(res2).toEqual({
       jsonrpc: '2.0',
       id: 'test',
-      error: { code, message: ERROR_MESSAGE[code] }
+      error: { code, message: ERROR_MESSAGE[code] },
     })
 
     expect(onInvalidMessage).toHaveBeenCalledTimes(1)
@@ -90,7 +90,7 @@ describe('server', () => {
     expect(onNotification).toHaveBeenCalledTimes(1)
     expect(onNotification).toHaveBeenCalledWith({ ctx: true }, {
       jsonrpc: '2.0',
-      method: 'test'
+      method: 'test',
     } as RPCRequest)
   })
 
@@ -100,19 +100,19 @@ describe('server', () => {
     const res = await handle({ ctx: true }, {
       jsonrpc: '2.0',
       id: 'test',
-      method: 'test'
+      method: 'test',
     } as RPCRequest)
     expect(res).toEqual({
       jsonrpc: '2.0',
       id: 'test',
-      error: { code, message: ERROR_MESSAGE[code] }
+      error: { code, message: ERROR_MESSAGE[code] },
     })
   })
 
   test('createHandler() handles successful handler return', async () => {
     const handle = createHandler({
       testAsync: jest.fn((ctx, { name }: { name: string }) => Promise.resolve(`hello ${name}`)),
-      testSync: jest.fn((ctx, { name }: { name: string }) => `hello ${name}`)
+      testSync: jest.fn((ctx, { name }: { name: string }) => `hello ${name}`),
     })
 
     const resAsync = await handle(
@@ -122,7 +122,7 @@ describe('server', () => {
     expect(resAsync).toEqual({
       jsonrpc: '2.0',
       id: 'test',
-      result: 'hello alice'
+      result: 'hello alice',
     })
 
     const resSync = await handle(
@@ -132,7 +132,7 @@ describe('server', () => {
     expect(resSync).toEqual({
       jsonrpc: '2.0',
       id: 'test',
-      result: 'hello bob'
+      result: 'hello bob',
     })
   })
 
@@ -154,7 +154,7 @@ describe('server', () => {
         },
         jsErrorNoMessage: () => {
           throw new Error()
-        }
+        },
       },
       { onHandlerError }
     )
@@ -162,15 +162,15 @@ describe('server', () => {
     const rpcErrorRes = await handle({ ctx: true }, {
       jsonrpc: '2.0',
       id: 'rpc',
-      method: 'rpcError'
+      method: 'rpcError',
     } as RPCRequest)
     expect(rpcErrorRes).toEqual({
       jsonrpc: '2.0',
       id: 'rpc',
       error: {
         code: 1000,
-        message: 'Custom error message'
-      }
+        message: 'Custom error message',
+      },
     })
 
     // Throwing RPCError should not trigger onHandlerError
@@ -179,43 +179,43 @@ describe('server', () => {
     const jsNoCodeErrorRes = await handle({ ctx: true }, {
       jsonrpc: '2.0',
       id: 'js_no_code',
-      method: 'jsErrorNoCode'
+      method: 'jsErrorNoCode',
     } as RPCRequest)
     expect(jsNoCodeErrorRes).toEqual({
       jsonrpc: '2.0',
       id: 'js_no_code',
       error: {
         code: -32000,
-        message: 'Error message'
-      }
+        message: 'Error message',
+      },
     })
 
     const jsWithCodeErrorRes = await handle({ ctx: true }, {
       jsonrpc: '2.0',
       id: 'js_with_code',
-      method: 'jsErrorWithCode'
+      method: 'jsErrorWithCode',
     } as RPCRequest)
     expect(jsWithCodeErrorRes).toEqual({
       jsonrpc: '2.0',
       id: 'js_with_code',
       error: {
         code: 1000,
-        message: 'Error message'
-      }
+        message: 'Error message',
+      },
     })
 
     const jsNoMessageErrorRes = await handle({ ctx: true }, {
       jsonrpc: '2.0',
       id: 'js_no_message',
-      method: 'jsErrorNoMessage'
+      method: 'jsErrorNoMessage',
     } as RPCRequest)
     expect(jsNoMessageErrorRes).toEqual({
       jsonrpc: '2.0',
       id: 'js_no_message',
       error: {
         code: -32000,
-        message: 'Server error'
-      }
+        message: 'Server error',
+      },
     })
 
     expect(onHandlerError).toHaveBeenCalledTimes(3)

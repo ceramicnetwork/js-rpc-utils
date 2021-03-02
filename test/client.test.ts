@@ -16,7 +16,7 @@ describe('client', () => {
       return Promise.resolve({
         jsonrpc: '2.0',
         id: 'test',
-        result: 'OK'
+        result: 'OK',
       })
     }) as SendRequestFunc
     const client = new RPCClient({ send })
@@ -26,7 +26,7 @@ describe('client', () => {
       id: expect.any(String),
       jsonrpc: '2.0',
       method: 'test_method',
-      params: ['hello']
+      params: ['hello'],
     })
     expect(res).toBe('OK')
   })
@@ -36,7 +36,7 @@ describe('client', () => {
       return Promise.resolve({
         id: 'test',
         jsonrpc: '2.0',
-        error: { code: 1, message: 'failed' }
+        error: { code: 1, message: 'failed' },
       })
     }) as SendRequestFunc
     const client = new RPCClient({ send })
