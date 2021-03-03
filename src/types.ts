@@ -9,18 +9,34 @@ export type RPCMethodTypes = {
 }
 export type RPCMethods = Record<string, RPCMethodTypes>
 
-export type RPCRequest<Methods extends RPCMethods, MethodName extends keyof Methods> = {
-  jsonrpc: string
-  method: MethodName
-  params: Methods[MethodName]['params']
-  id?: RPCID
-}
+export type RPCRequest<
+  Methods extends RPCMethods,
+  MethodName extends keyof Methods
+> = Methods[MethodName]['params'] extends undefined
+  ? {
+      jsonrpc: string
+      method: MethodName
+      params?: undefined
+      id?: RPCID
+    }
+  : {
+      jsonrpc: string
+      method: MethodName
+      params: Methods[MethodName]['params']
+      id?: RPCID
+    }
 
-export type RPCErrorObject<Data = undefined> = {
-  code: number
-  data?: Data
-  message?: string
-}
+export type RPCErrorObject<Data = undefined> = Data extends undefined
+  ? {
+      code: number
+      data?: undefined
+      message?: string
+    }
+  : {
+      code: number
+      data: Data
+      message?: string
+    }
 
 export type RPCErrorResponse<ErrorData = undefined> = {
   jsonrpc: string
@@ -29,12 +45,19 @@ export type RPCErrorResponse<ErrorData = undefined> = {
   error: RPCErrorObject<ErrorData>
 }
 
-export type RPCResultResponse<Result = unknown> = {
-  jsonrpc: string
-  id: RPCID
-  result: Result
-  error?: never
-}
+export type RPCResultResponse<Result = undefined> = Result extends undefined
+  ? {
+      jsonrpc: string
+      id: RPCID
+      result?: undefined
+      error?: never
+    }
+  : {
+      jsonrpc: string
+      id: RPCID
+      result: Result
+      error?: never
+    }
 
 export type RPCResponse<Methods extends RPCMethods, K extends keyof Methods> =
   | RPCResultResponse<Methods[K]['result']>

@@ -44,7 +44,7 @@ type RPCMethods = Record<string, RPCMethodTypes>
 type RPCRequest<Methods extends RPCMethods, MethodName extends keyof Methods> = {
   jsonrpc: string
   method: MethodName
-  params: Methods[MethodName]['params']
+  params?: Methods[MethodName]['params']
   id?: RPCID
 }
 ```

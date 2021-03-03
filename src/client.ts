@@ -1,7 +1,7 @@
 import { nanoid } from 'nanoid'
 
 import { RPCError } from './error'
-import type { RPCConnection, RPCMethods } from './types'
+import type { RPCConnection, RPCMethods, RPCRequest } from './types'
 
 export class RPCClient<Methods extends RPCMethods> {
   connection: RPCConnection<Methods>
@@ -16,14 +16,14 @@ export class RPCClient<Methods extends RPCMethods> {
 
   async request<MethodName extends keyof Methods>(
     method: MethodName,
-    params: Methods[MethodName]['params']
+    params: Methods[MethodName]['params'] = undefined
   ): Promise<Methods[MethodName]['result']> {
     const res = await this.connection.send({
       jsonrpc: '2.0',
       id: this.createID(),
       method,
       params,
-    })
+    } as RPCRequest<Methods, MethodName>)
     if (res == null) {
       throw new Error('Missing response')
     }
