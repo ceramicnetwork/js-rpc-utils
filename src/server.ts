@@ -13,10 +13,13 @@ export type ErrorHandler<Context, Methods extends RPCMethods> = <K extends keyof
   error: Error
 ) => void
 
-export type MethodHandler<Context, Params, Result> = (
-  ctx: Context,
-  params?: Params
-) => Result | Promise<Result>
+export type MethodHandler<
+  Context,
+  Params = undefined,
+  Result = undefined
+> = Params extends undefined
+  ? (ctx: Context, params?: undefined) => Result | Promise<Result>
+  : (ctx: Context, params: Params) => Result | Promise<Result>
 
 export type NotificationHandler<Context, Methods extends RPCMethods> = <K extends keyof Methods>(
   ctx: Context,
@@ -104,6 +107,8 @@ export function createHandler<Context, Methods extends RPCMethods>(
       return createErrorResponse(id, ERROR_CODE.METHOD_NOT_FOUND)
     }
     try {
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore params can be undefined
       const handled = handler(ctx, msg.params)
       const result =
         typeof (handled as Promise<Methods[K]['result']>).then === 'function'
