@@ -1,6 +1,6 @@
 {
   "name": "rpc-utils",
-  "version": "0.3.2",
+  "version": "0.3.3",
   "author": "Paul Le Cam <paul@3box.io>",
   "license": "(Apache-2.0 OR MIT)",
   "main": "dist/index.js",

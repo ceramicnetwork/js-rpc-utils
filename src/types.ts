@@ -63,10 +63,13 @@ export type RPCResponse<Methods extends RPCMethods, K extends keyof Methods> =
   | RPCResultResponse<Methods[K]['result']>
   | RPCErrorResponse<Methods[K]['error']>
 
-export type SendRequestFunc<Methods extends RPCMethods> = <K extends keyof Methods>(
-  request: RPCRequest<Methods, K>
+export type SendRequestFunc<Methods extends RPCMethods, Args extends Array<any> = []> = <
+  K extends keyof Methods
+>(
+  request: RPCRequest<Methods, K>,
+  ...args: Args
 ) => Promise<RPCResponse<Methods, K> | null>
 
-export type RPCConnection<Methods extends RPCMethods> = {
-  send: SendRequestFunc<Methods>
+export type RPCConnection<Methods extends RPCMethods, SendArgs extends Array<any> = []> = {
+  send: SendRequestFunc<Methods, SendArgs>
 }
