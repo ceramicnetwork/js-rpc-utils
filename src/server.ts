@@ -111,7 +111,9 @@ export function createHandler<Context, Methods extends RPCMethods>(
       // @ts-ignore params can be undefined
       const handled = handler(ctx, msg.params)
       const result =
-        typeof (handled as Promise<Methods[K]['result']>).then === 'function'
+        handled == null
+          ? handled
+          : typeof (handled as Promise<Methods[K]['result']>).then === 'function'
           ? await handled
           : handled
       return { jsonrpc: '2.0', id, result } as RPCResultResponse<Methods[K]['result']>

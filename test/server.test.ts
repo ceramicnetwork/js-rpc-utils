@@ -113,6 +113,9 @@ describe('server', () => {
     const handle = createHandler({
       testAsync: jest.fn((ctx, { name }: { name: string }) => Promise.resolve(`hello ${name}`)),
       testSync: jest.fn((ctx, { name }: { name: string }) => `hello ${name}`),
+      testEmpty: jest.fn(() => {
+        // don't return anything
+      }),
     })
 
     const resAsync = await handle(
@@ -133,6 +136,16 @@ describe('server', () => {
       jsonrpc: '2.0',
       id: 'test',
       result: 'hello bob',
+    })
+
+    const resEmpty = await handle(
+      { ctx: true },
+      { jsonrpc: '2.0', id: 'test', method: 'testEmpty', params: { name: 'bob' } }
+    )
+    expect(resEmpty).toEqual({
+      jsonrpc: '2.0',
+      id: 'test',
+      result: undefined,
     })
   })
 
