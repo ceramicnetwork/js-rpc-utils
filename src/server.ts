@@ -98,11 +98,13 @@ export function createHandler<Context, Methods extends RPCMethods>(
       }
       return createErrorResponse(id, ERROR_CODE.INVALID_REQUEST)
     }
+    const handler = methods[msg.method]
     if (id == null) {
-      onNotification(ctx, msg)
+      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
+      // @ts-ignore params can be undefined
+      handler == null ? onNotification(ctx, msg) : void handler(ctx, msg.params)
       return null
     }
-    const handler = methods[msg.method]
     if (handler == null) {
       return createErrorResponse(id, ERROR_CODE.METHOD_NOT_FOUND)
     }

@@ -37,10 +37,10 @@ export class RPCClient<Methods extends RPCMethods> {
     method: MethodName,
     params: Methods[MethodName]['params'] = undefined
   ): Promise<void> {
-    await this.connection.send({
+    void (await this.connection.send({
       jsonrpc: '2.0',
       method,
       params,
-    } as RPCRequest<Methods, MethodName>)
+    } as RPCRequest<Methods, MethodName>))
   }
 }
