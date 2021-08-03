@@ -11,7 +11,7 @@ describe('client', () => {
     expect(id1).not.toBe(id2)
   })
 
-  test('calls the send() function with the required parameters', async () => {
+  test('calls the send() function with the required parameters, client.request', async () => {
     const send = jest.fn(() => {
       return Promise.resolve({
         jsonrpc: '2.0',
@@ -29,6 +29,24 @@ describe('client', () => {
       params: ['hello'],
     })
     expect(res).toBe('OK')
+  })
+
+  test('calls the send() function with the required parameters on client.notify', async () => {
+    const send = jest.fn(() => {
+      return Promise.resolve({
+        jsonrpc: '2.0',
+        result: 'OK',
+      })
+    }) as SendRequestFunc
+    const client = new RPCClient({ send })
+    const res = await client.notify('test_method', ['hello'])
+    expect(send).toHaveBeenCalledTimes(1)
+    expect(send).toHaveBeenCalledWith({
+      jsonrpc: '2.0',
+      method: 'test_method',
+      params: ['hello'],
+    })
+    expect(res).toBe(undefined)
   })
 
   test('throws a RPCError if the response payload contains an error', async () => {
