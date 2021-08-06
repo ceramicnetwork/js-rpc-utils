@@ -252,6 +252,19 @@ Extends built-in `Error` class
 
 **Returns** `Promise<Methods[MethodName]['result']>` or throws a `RPCError` instance if the request fails
 
+#### .notify()
+
+**Type parameters**
+
+1. `MethodName extends keyof Methods`: the notification `method`
+
+**Arguments**
+
+1. `method: MethodName`
+1. `params: Methods[MethodName]['params']`
+
+**Returns** `Promise<void>`
+
 ## Server APIs
 
 ### parseJSON()
@@ -284,7 +297,7 @@ Extends built-in `Error` class
 
 - `onHandlerError: ErrorHandler<Context, Methods>`: callback used when a method handler throws an `Error` other than `RPCError`.
 - `onInvalidMessage: NotificationHandler<Context, Methods>`: callback used when receiving an invalid message, such as not having the `jsonrpc` field as `2.0` or missing the `method`.
-- `onNotification: NotificationHandler<Context, Methods>`: callback used when receiving a JSON-RPC notification (no `id` present).
+- `onNotification: NotificationHandler<Context, Methods>`: callback used when receiving a JSON-RPC notification (no `id` present) that does not have a matching method handler.
 
 When these options are not provided, fallbacks using `console.warn` will be called instead.
 
