@@ -91,6 +91,7 @@ export function createHandler<Context, Methods extends RPCMethods>(
     msg: RPCRequest<Methods, K>
   ): Promise<RPCResponse<Methods, K> | null> {
     const id = msg.id
+
     if (msg.jsonrpc !== '2.0' || msg.method == null) {
       if (id == null) {
         onInvalidMessage(ctx, msg)
@@ -98,16 +99,16 @@ export function createHandler<Context, Methods extends RPCMethods>(
       }
       return createErrorResponse(id, ERROR_CODE.INVALID_REQUEST)
     }
+
     const handler = methods[msg.method]
-    if (id == null) {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore params can be undefined
-      handler == null ? onNotification(ctx, msg) : void handler(ctx, msg.params)
-      return null
-    }
     if (handler == null) {
+      if (id == null) {
+        onNotification(ctx, msg)
+        return null
+      }
       return createErrorResponse(id, ERROR_CODE.METHOD_NOT_FOUND)
     }
+
     try {
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore params can be undefined
@@ -118,8 +119,16 @@ export function createHandler<Context, Methods extends RPCMethods>(
           : typeof (handled as Promise<Methods[K]['result']>).then === 'function'
           ? await handled
           : handled
-      return { jsonrpc: '2.0', id, result } as RPCResultResponse<Methods[K]['result']>
+
+      return id == null
+        ? null
+        : ({ jsonrpc: '2.0', id, result } as RPCResultResponse<Methods[K]['result']>)
     } catch (err) {
+      if (id == null) {
+        onHandlerError(ctx, msg, err)
+        return null
+      }
+
       let error
       if (err instanceof RPCError) {
         error = err.toObject()
