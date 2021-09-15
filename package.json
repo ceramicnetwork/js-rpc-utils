@@ -1,63 +1,67 @@
 {
   "name": "rpc-utils",
-  "version": "0.4.0",
-  "author": "Paul Le Cam <paul@3box.io>",
+  "version": "0.5.0",
+  "author": "3Box Labs",
   "license": "(Apache-2.0 OR MIT)",
-  "main": "dist/index.js",
-  "module": "dist/rpc-utils.esm.js",
+  "homepage": "https://github.com/ceramicnetwork/js-rpc-utils#readme",
+  "keywords": [
+    "json",
+    "rpc"
+  ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/ceramicnetwork/js-rpc-utils"
+  },
+  "main": "dist/lib.cjs",
+  "module": "dist/lib.mjs",
   "typings": "dist/index.d.ts",
+  "exports": {
+    "import": "./dist/lib.mjs",
+    "require": "./dist/lib.cjs",
+    "default": "./dist/lib.cjs"
+  },
   "files": [
     "dist",
     "src"
   ],
   "engines": {
-    "node": ">=12"
+    "node": ">=16"
   },
+  "sideEffects": false,
   "scripts": {
-    "start": "tsdx watch",
-    "build": "tsdx build",
-    "test": "tsdx test",
-    "lint": "tsdx lint src test",
-    "prepare": "tsdx build",
-    "size": "size-limit",
-    "analyze": "size-limit --why"
+    "build": "del dist && tsc --emitDeclarationOnly && rollup -c rollup.config.js",
+    "docs": "typedoc --tsconfig tsconfig.docs.json",
+    "lint": "eslint src test --fix",
+    "test": "jest",
+    "prepare": "yarn build",
+    "prepublishOnly": "package-check"
   },
   "dependencies": {
     "nanoid": "^3.1.21"
   },
   "devDependencies": {
-    "@size-limit/preset-small-lib": "^5.0.2",
+    "@skypack/package-check": "^0.2.2",
+    "@types/jest": "^27.0.1",
     "@types/nanoid": "^3.0.0",
+    "del-cli": "^4.0.1",
+    "esbuild": "^0.12.28",
     "eslint": "^7.32.0",
-    "eslint-config-3box": "^0.2.0",
-    "husky": "^7.0.1",
+    "eslint-config-3box": "^0.3.0",
+    "jest": "^27.2.0",
     "prettier": "^2.3.2",
-    "size-limit": "^5.0.2",
-    "tsdx": "^0.14.1",
-    "tslib": "^2.3.0",
+    "rollup": "^2.56.3",
+    "rollup-plugin-esbuild": "^4.5.0",
+    "ts-jest": "^27.0.5",
+    "typedoc": "^0.22.3",
+    "typedoc-plugin-markdown": "^3.11.0",
     "typescript": "^4.3.5"
   },
-  "husky": {
-    "hooks": {
-      "pre-commit": "tsdx lint"
-    }
-  },
   "jest": {
+    "preset": "ts-jest",
     "globals": {
       "ts-jest": {
         "diagnostics": false
       }
-    },
-    "testEnvironment": "node"
-  },
-  "size-limit": [
-    {
-      "path": "dist/rpc-utils.cjs.production.min.js",
-      "limit": "5 KB"
-    },
-    {
-      "path": "dist/rpc-utils.esm.js",
-      "limit": "5 KB"
     }
-  ]
+  }
 }

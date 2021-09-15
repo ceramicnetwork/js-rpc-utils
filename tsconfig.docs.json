@@ -1,0 +1,13 @@
+{
+  "extends": "./tsconfig.json",
+  "typedocOptions": {
+    "name": "JSON-RPC 2.0 utilities",
+    "readme": "none",
+    "entryPoints": ["./src/index.ts"],
+    "disableSources": true,
+    "excludeExternals": true,
+    "excludeInternal": true,
+    "excludePrivate": true,
+    "hideBreadcrumbs": true
+  }
+}

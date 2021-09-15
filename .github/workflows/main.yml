@@ -7,7 +7,7 @@ jobs:
     runs-on: ${{ matrix.os }}
     strategy:
       matrix:
-        node: ['12.x', '14.x']
+        node: ['16.x']
         os: [ubuntu-latest, macOS-latest]
 
     steps:
@@ -27,6 +27,3 @@ jobs:
 
       - name: Test
         run: yarn test --ci --coverage
-
-      - name: Build
-        run: yarn build

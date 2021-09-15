@@ -1,6 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
-import { RPCClient, RPCError, SendRequestFunc } from '../src'
+import { ABORT_REQUEST_METHOD, RPCClient, RPCError, abortedReasonSymbol } from '../src'
+import type { SendRequestFunc } from '../src'
 
 describe('client', () => {
   test('has a createID() method generating a random string', () => {
@@ -18,7 +19,7 @@ describe('client', () => {
         id: 'test',
         result: 'OK',
       })
-    }) as SendRequestFunc
+    }) as SendRequestFunc<any>
     const client = new RPCClient({ send })
     const res = await client.request('test_method', ['hello'])
     expect(send).toHaveBeenCalledTimes(1)
@@ -37,7 +38,7 @@ describe('client', () => {
         jsonrpc: '2.0',
         result: 'OK',
       })
-    }) as SendRequestFunc
+    }) as SendRequestFunc<any>
     const client = new RPCClient({ send })
     const res = await client.notify('test_method', ['hello'])
     expect(send).toHaveBeenCalledTimes(1)
@@ -56,8 +57,38 @@ describe('client', () => {
         jsonrpc: '2.0',
         error: { code: 1, message: 'failed' },
       })
-    }) as SendRequestFunc
+    }) as SendRequestFunc<any>
     const client = new RPCClient({ send })
     await expect(client.request('test_method', ['hello'])).rejects.toThrow(RPCError)
+  })
+
+  describe('abort signal', () => {
+    test('rejects without sending the request if already aborted', async () => {
+      const send = jest.fn()
+      const client = new RPCClient({ send })
+      const controller = new AbortController()
+      controller.abort()
+      await expect(
+        client.request('test_method', ['hello'], { signal: controller.signal })
+      ).rejects.toBe(abortedReasonSymbol)
+      expect(send).not.toBeCalled()
+    })
+
+    test('rejects and notify server when aborted', async () => {
+      const send = jest.fn(() => Promise.resolve())
+      const client = new RPCClient({ send: send as unknown as SendRequestFunc<any> })
+
+      const controller = new AbortController()
+      const req = client.request('test_method', ['hello'], { signal: controller.signal })
+      controller.abort()
+
+      await expect(req).rejects.toBe(abortedReasonSymbol)
+      expect(send).toHaveBeenCalledTimes(2)
+      expect(send).toHaveBeenLastCalledWith({
+        jsonrpc: '2.0',
+        method: ABORT_REQUEST_METHOD,
+        params: { id: send.mock.calls[0]?.[0]?.id as string },
+      })
+    })
   })
 })
