@@ -1,3 +1,5 @@
+import { abortableHandlerSymbol } from './abortable'
+import { ABORT_REQUEST_METHOD } from './constants'
 import { ERROR_CODE, RPCError, createParseError, getErrorMessage } from './error'
 import type {
   RPCErrorResponse,
@@ -13,13 +15,20 @@ export type ErrorHandler<Context, Methods extends RPCMethods> = <K extends keyof
   error: Error
 ) => void
 
-export type MethodHandler<
-  Context,
-  Params = undefined,
-  Result = undefined
-> = Params extends undefined
-  ? (ctx: Context, params?: undefined) => Result | Promise<Result>
-  : (ctx: Context, params: Params) => Result | Promise<Result>
+export type MethodHandlerOptions = { signal?: AbortSignal }
+
+export type MethodHandler<Context, Params = undefined, Result = undefined> = ((
+  ctx: Context,
+  params: Params,
+  options: MethodHandlerOptions
+) => Result | Promise<Result>) & {
+  [abortableHandlerSymbol]?: boolean
+}
+
+export function abortableHandler<Handler extends MethodHandler<any>>(handler: Handler): Handler {
+  handler[abortableHandlerSymbol] = true
+  return handler
+}
 
 export type NotificationHandler<Context, Methods extends RPCMethods> = <K extends keyof Methods>(
   ctx: Context,
@@ -86,6 +95,21 @@ export function createHandler<Context, Methods extends RPCMethods>(
   const onInvalidMessage = options.onInvalidMessage ?? fallbackOnInvalidMessage
   const onNotification = options.onNotification ?? fallbackOnNotification
 
+  const inflight: Record<string | number, AbortController> = {}
+
+  function handleNotification(ctx: Context, msg: RPCRequest<Methods, keyof Methods>) {
+    // If this is an abort notification, check if inflight and keep track of it
+    // Also propagate the abortion to the handler if supported
+    if (msg.method === ABORT_REQUEST_METHOD) {
+      const requestID = (msg.params as { id: string | number } | void)?.id
+      if (requestID != null) {
+        inflight[requestID]?.abort()
+      }
+    } else {
+      onNotification(ctx, msg)
+    }
+  }
+
   return async function handleRequest<K extends keyof Methods>(
     ctx: Context,
     msg: RPCRequest<Methods, K>
@@ -103,29 +127,36 @@ export function createHandler<Context, Methods extends RPCMethods>(
     const handler = methods[msg.method]
     if (handler == null) {
       if (id == null) {
-        onNotification(ctx, msg)
+        handleNotification(ctx, msg)
         return null
       }
       return createErrorResponse(id, ERROR_CODE.METHOD_NOT_FOUND)
     }
 
     try {
-      // eslint-disable-next-line @typescript-eslint/ban-ts-comment
-      // @ts-ignore params can be undefined
-      const handled = handler(ctx, msg.params)
+      let handled: Methods[K]['result'] | Promise<Methods[K]['result']>
+      if (id != null && handler[abortableHandlerSymbol]) {
+        const controller = new AbortController()
+        inflight[id] = controller
+        handled = handler(ctx, msg.params, { signal: controller.signal })
+      } else {
+        handled = handler(ctx, msg.params, {})
+      }
+
       const result =
-        handled == null
+        handled == null // Perform null check before checking existence of .then() method
           ? handled
           : typeof (handled as Promise<Methods[K]['result']>).then === 'function'
           ? await handled
           : handled
 
-      return id == null
+      return id == null || inflight[id]?.signal.aborted // Don't send response if aborted
         ? null
         : ({ jsonrpc: '2.0', id, result } as RPCResultResponse<Methods[K]['result']>)
     } catch (err) {
-      if (id == null) {
-        onHandlerError(ctx, msg, err)
+      // Don't send response if aborted
+      if (id == null || inflight[id]?.signal.aborted) {
+        onHandlerError(ctx, msg, err as Error)
         return null
       }
 
@@ -133,11 +164,15 @@ export function createHandler<Context, Methods extends RPCMethods>(
       if (err instanceof RPCError) {
         error = err.toObject()
       } else {
-        onHandlerError(ctx, msg, err)
+        onHandlerError(ctx, msg, err as Error)
         const code = (err as { code?: number }).code ?? -32000 // Server error
         error = { code, message: (err as { message?: string }).message || getErrorMessage(code) }
       }
       return { jsonrpc: '2.0', id, error } as RPCErrorResponse<Methods[K]['error']>
+    } finally {
+      if (id != null) {
+        delete inflight[id]
+      }
     }
   }
 }
