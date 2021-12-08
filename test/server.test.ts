@@ -1,4 +1,4 @@
-/* eslint-disable @typescript-eslint/ban-ts-comment */
+/* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-unsafe-argument */
 
 import {
   ABORT_REQUEST_METHOD,
@@ -119,7 +119,10 @@ describe('server', () => {
     test('uses onNotification() when no handler is present', async () => {
       const onNotification = jest.fn()
       const handle = createHandler({}, { onNotification })
-      const res = await handle({ ctx: true }, { jsonrpc: '2.0', method: 'test' } as any)
+      const res = await handle({ ctx: true }, {
+        jsonrpc: '2.0',
+        method: 'test',
+      } as unknown as RPCRe)
       expect(res).toBeNull()
       expect(onNotification).toHaveBeenCalledTimes(1)
       expect(onNotification).toHaveBeenCalledWith(
