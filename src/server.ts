@@ -1,13 +1,13 @@
-import { abortableHandlerSymbol } from './abortable'
-import { ABORT_REQUEST_METHOD } from './constants'
-import { ERROR_CODE, RPCError, createParseError, getErrorMessage } from './error'
+import { abortableHandlerSymbol } from './abortable.js'
+import { ABORT_REQUEST_METHOD } from './constants.js'
+import { ERROR_CODE, RPCError, createParseError, getErrorMessage } from './error.js'
 import type {
   RPCErrorResponse,
   RPCMethods,
   RPCRequest,
   RPCResponse,
   RPCResultResponse,
-} from './types'
+} from './types.js'
 
 export type ErrorHandler<Context, Methods extends RPCMethods> = <K extends keyof Methods>(
   ctx: Context,

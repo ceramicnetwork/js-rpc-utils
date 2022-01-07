@@ -1,9 +1,9 @@
 import { nanoid } from 'nanoid'
 
-import { abortable, abortedReasonSymbol } from './abortable'
-import { ABORT_REQUEST_METHOD } from './constants'
-import { RPCError } from './error'
-import type { RPCConnection, RPCMethods, RPCRequest } from './types'
+import { abortable, abortedReasonSymbol } from './abortable.js'
+import { ABORT_REQUEST_METHOD } from './constants.js'
+import { RPCError } from './error.js'
+import type { RPCConnection, RPCMethods, RPCRequest } from './types.js'
 
 export type RequestOptions = { signal?: AbortSignal }
 
@@ -21,8 +21,9 @@ export class RPCClient<Methods extends RPCMethods> {
   request<MethodName extends keyof Methods>(
     method: MethodName,
     params: Methods[MethodName]['params'] = undefined,
-    { signal }: RequestOptions = {}
+    options: RequestOptions = {}
   ): Promise<Methods[MethodName]['result']> {
+    const { signal } = options
     if (signal?.aborted) {
       return Promise.reject(abortedReasonSymbol)
     }
