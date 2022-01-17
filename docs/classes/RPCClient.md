@@ -60,10 +60,10 @@ ___
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `method` | `MethodName` |
-| `params` | `Methods`[`MethodName`][``"params"``] |
+| Name | Type | Default value |
+| :------ | :------ | :------ |
+| `method` | `MethodName` | `undefined` |
+| `params` | `Methods`[`MethodName`][``"params"``] | `undefined` |
 
 #### Returns
 
@@ -73,7 +73,7 @@ ___
 
 ### request
 
-▸ **request**<`MethodName`\>(`method`, `params?`, `__namedParameters?`): `Promise`<`Methods`[`MethodName`][``"result"``]\>
+▸ **request**<`MethodName`\>(`method`, `params?`, `options?`): `Promise`<`Methods`[`MethodName`][``"result"``]\>
 
 #### Type parameters
 
@@ -83,11 +83,11 @@ ___
 
 #### Parameters
 
-| Name | Type |
-| :------ | :------ |
-| `method` | `MethodName` |
-| `params` | `Methods`[`MethodName`][``"params"``] |
-| `__namedParameters` | [`RequestOptions`](../README.md#requestoptions) |
+| Name | Type | Default value |
+| :------ | :------ | :------ |
+| `method` | `MethodName` | `undefined` |
+| `params` | `Methods`[`MethodName`][``"params"``] | `undefined` |
+| `options` | [`RequestOptions`](../README.md#requestoptions) | `{}` |
 
 #### Returns
 

@@ -5,6 +5,7 @@
     "readme": "none",
     "entryPoints": ["./src/index.ts"],
     "disableSources": true,
+    "githubPages": false,
     "excludeExternals": true,
     "excludeInternal": true,
     "excludePrivate": true,

@@ -1,10 +1,10 @@
-# JSON-RPC utilities
+# JSON-RPC 2.0 utilities
 
 ## Table of contents
 
 ### Enumerations
 
-- [ERROR_CODE](enums/ERROR_CODE.md)
+- [ERROR\_CODE](enums/ERROR_CODE.md)
 
 ### Classes
 
@@ -34,14 +34,15 @@
 
 ### Variables
 
-- [ABORT_REQUEST_METHOD](README.md#abort_request_method)
-- [ERROR_MESSAGE](README.md#error_message)
-- [abortableHandler](README.md#abortablehandler)
-- [abortedReason](README.md#abortedreason)
+- [ABORT\_REQUEST\_METHOD](README.md#abort_request_method)
+- [ERROR\_MESSAGE](README.md#error_message)
+- [abortableHandlerSymbol](README.md#abortablehandlersymbol)
+- [abortedReasonSymbol](README.md#abortedreasonsymbol)
 
 ### Functions
 
 - [abortable](README.md#abortable)
+- [abortableHandler](README.md#abortablehandler)
 - [createErrorResponse](README.md#createerrorresponse)
 - [createHandler](README.md#createhandler)
 - [createInternalError](README.md#createinternalerror)
@@ -50,6 +51,7 @@
 - [createMethodNotFound](README.md#createmethodnotfound)
 - [createParseError](README.md#createparseerror)
 - [getErrorMessage](README.md#geterrormessage)
+- [isAborted](README.md#isaborted)
 - [isServerError](README.md#isservererror)
 - [parseJSON](README.md#parsejson)
 
@@ -126,7 +128,7 @@ ___
 
 ### MethodHandler
 
-Ƭ **MethodHandler**<`Context`, `Params`, `Result`\>: (`ctx`: `Context`, `params`: `Params`, `options`: [`MethodHandlerOptions`](README.md#methodhandleroptions)) => `Result` \| `Promise`<`Result`\> & { `[abortableHandler]?`: `boolean`  }
+Ƭ **MethodHandler**<`Context`, `Params`, `Result`\>: (`ctx`: `Context`, `params`: `Params`, `options`: [`MethodHandlerOptions`](README.md#methodhandleroptions)) => `Result` \| `Promise`<`Result`\> & { `[abortableHandlerSymbol]?`: `boolean`  }
 
 #### Type parameters
 
@@ -193,7 +195,7 @@ ___
 | Name | Type |
 | :------ | :------ |
 | `Methods` | extends [`RPCMethods`](README.md#rpcmethods) |
-| `SendArgs` | extends `any`[][] |
+| `SendArgs` | extends `any`[] = [] |
 
 #### Type declaration
 
@@ -327,7 +329,7 @@ ___
 | Name | Type |
 | :------ | :------ |
 | `Methods` | extends [`RPCMethods`](README.md#rpcmethods) |
-| `Args` | extends `any`[][] |
+| `Args` | extends `any`[] = [] |
 
 #### Type declaration
 
@@ -364,15 +366,15 @@ ___
 
 ___
 
-### abortableHandler
+### abortableHandlerSymbol
 
-• **abortableHandler**: typeof [`abortableHandler`](README.md#abortablehandler)
+• **abortableHandlerSymbol**: typeof [`abortableHandlerSymbol`](README.md#abortablehandlersymbol)
 
 ___
 
-### abortedReason
+### abortedReasonSymbol
 
-• **abortedReason**: typeof [`abortedReason`](README.md#abortedreason)
+• **abortedReasonSymbol**: typeof [`abortedReasonSymbol`](README.md#abortedreasonsymbol)
 
 ## Functions
 
@@ -396,6 +398,28 @@ ___
 #### Returns
 
 `Promise`<`T`\>
+
+___
+
+### abortableHandler
+
+▸ **abortableHandler**<`Handler`\>(`handler`): `Handler`
+
+#### Type parameters
+
+| Name | Type |
+| :------ | :------ |
+| `Handler` | extends [`MethodHandler`](README.md#methodhandler)<`any`, `undefined`, `undefined`\> |
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `handler` | `Handler` |
+
+#### Returns
+
+`Handler`
 
 ___
 
@@ -582,6 +606,22 @@ ___
 #### Returns
 
 `string`
+
+___
+
+### isAborted
+
+▸ **isAborted**(`reason`): `boolean`
+
+#### Parameters
+
+| Name | Type |
+| :------ | :------ |
+| `reason` | `unknown` |
+
+#### Returns
+
+`boolean`
 
 ___
 

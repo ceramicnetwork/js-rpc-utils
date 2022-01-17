@@ -1,4 +1,4 @@
-import type { RPCErrorObject } from './types'
+import type { RPCErrorObject } from './types.js'
 
 export enum ERROR_CODE {
   PARSE_ERROR = -32700,

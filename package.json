@@ -1,6 +1,6 @@
 {
   "name": "rpc-utils",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "author": "3Box Labs",
   "license": "(Apache-2.0 OR MIT)",
   "homepage": "https://github.com/ceramicnetwork/js-rpc-utils#readme",
@@ -12,24 +12,22 @@
     "type": "git",
     "url": "https://github.com/ceramicnetwork/js-rpc-utils"
   },
-  "main": "dist/lib.cjs",
-  "module": "dist/lib.mjs",
-  "typings": "dist/index.d.ts",
+  "type": "module",
+  "main": "dist/index.js",
+  "types": "dist/index.d.ts",
   "exports": {
-    "import": "./dist/lib.mjs",
-    "require": "./dist/lib.cjs",
-    "default": "./dist/lib.cjs"
+    ".": "./dist/index.js",
+    "./*": "./dist/*.js"
   },
   "files": [
-    "dist",
-    "src"
+    "dist"
   ],
   "engines": {
     "node": ">=16"
   },
   "sideEffects": false,
   "scripts": {
-    "build": "del dist && tsc --emitDeclarationOnly && rollup -c rollup.config.js",
+    "build": "del dist && tsc --emitDeclarationOnly && swc src -d ./dist",
     "docs": "typedoc --tsconfig tsconfig.docs.json",
     "lint": "eslint src test --fix",
     "test": "jest",
@@ -41,27 +39,31 @@
   },
   "devDependencies": {
     "@skypack/package-check": "^0.2.2",
-    "@types/jest": "^27.0.3",
+    "@swc/cli": "^0.1.55",
+    "@swc/core": "^1.2.127",
+    "@swc/jest": "^0.2.15",
+    "@types/jest": "^27.4.0",
     "@types/nanoid": "^3.0.0",
     "del-cli": "^4.0.1",
-    "esbuild": "^0.14.2",
-    "eslint": "^8.4.1",
+    "eslint": "^8.6.0",
     "eslint-config-3box": "^0.4.0",
-    "jest": "^27.4.3",
+    "jest": "^27.4.7",
     "prettier": "^2.5.1",
-    "rollup": "^2.60.2",
-    "rollup-plugin-esbuild": "^4.7.2",
-    "ts-jest": "^27.1.1",
     "typedoc": "^0.22.10",
-    "typedoc-plugin-markdown": "^3.11.7",
-    "typescript": "^4.5.2"
+    "typedoc-plugin-markdown": "^3.11.11",
+    "typescript": "^4.5.4"
   },
   "jest": {
-    "preset": "ts-jest",
-    "globals": {
-      "ts-jest": {
-        "diagnostics": false
-      }
+    "extensionsToTreatAsEsm": [
+      ".ts"
+    ],
+    "moduleNameMapper": {
+      "^(\\.{1,2}/.*)\\.js$": "$1"
+    },
+    "transform": {
+      "^.+\\.(t|j)s$": [
+        "@swc/jest"
+      ]
     }
   }
 }

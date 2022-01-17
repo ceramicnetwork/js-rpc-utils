@@ -4,11 +4,11 @@
 
 ### Enumeration members
 
-- [INTERNAL_ERROR](ERROR_CODE.md#internal_error)
-- [INVALID_PARAMS](ERROR_CODE.md#invalid_params)
-- [INVALID_REQUEST](ERROR_CODE.md#invalid_request)
-- [METHOD_NOT_FOUND](ERROR_CODE.md#method_not_found)
-- [PARSE_ERROR](ERROR_CODE.md#parse_error)
+- [INTERNAL\_ERROR](ERROR_CODE.md#internal_error)
+- [INVALID\_PARAMS](ERROR_CODE.md#invalid_params)
+- [INVALID\_REQUEST](ERROR_CODE.md#invalid_request)
+- [METHOD\_NOT\_FOUND](ERROR_CODE.md#method_not_found)
+- [PARSE\_ERROR](ERROR_CODE.md#parse_error)
 
 ## Enumeration members
 
