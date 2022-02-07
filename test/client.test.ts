@@ -4,6 +4,12 @@ import { ABORT_REQUEST_METHOD, RPCClient, RPCError, abortedReasonSymbol } from '
 import type { SendRequestFunc } from '../src'
 
 describe('client', () => {
+  test('exposes the connection getter', () => {
+    const connection = { send: jest.fn() }
+    const client = new RPCClient(connection)
+    expect(client.connection).toBe(connection)
+  })
+
   test('has a createID() method generating a random string', () => {
     const client = new RPCClient({ send: jest.fn() })
     const id1 = client.createID()

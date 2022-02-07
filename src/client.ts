@@ -14,6 +14,10 @@ export class RPCClient<Methods extends RPCMethods> {
     this.#connection = connection
   }
 
+  get connection(): RPCConnection<Methods> {
+    return this.#connection
+  }
+
   createID(): string {
     return nanoid()
   }

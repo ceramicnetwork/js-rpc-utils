@@ -12,6 +12,10 @@
 
 - [constructor](RPCClient.md#constructor)
 
+### Accessors
+
+- [connection](RPCClient.md#connection)
+
 ### Methods
 
 - [createID](RPCClient.md#createid)
@@ -35,6 +39,16 @@
 | Name | Type |
 | :------ | :------ |
 | `connection` | [`RPCConnection`](../README.md#rpcconnection)<`Methods`, []\> |
+
+## Accessors
+
+### connection
+
+• `get` **connection**(): [`RPCConnection`](../README.md#rpcconnection)<`Methods`, []\>
+
+#### Returns
+
+[`RPCConnection`](../README.md#rpcconnection)<`Methods`, []\>
 
 ## Methods
 
