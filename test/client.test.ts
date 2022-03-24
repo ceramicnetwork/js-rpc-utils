@@ -1,5 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
+import * as polyfill from 'abort-controller'
+
+if (!globalThis.AbortController) {
+  globalThis.AbortController = polyfill.AbortController
+}
+if (!globalThis.AbortSignal) {
+  globalThis.AbortSignal = polyfill.AbortSignal
+}
+
 import { ABORT_REQUEST_METHOD, RPCClient, RPCError, abortedReasonSymbol } from '../src'
 import type { SendRequestFunc } from '../src'
 

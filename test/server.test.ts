@@ -1,5 +1,14 @@
 /* eslint-disable @typescript-eslint/ban-ts-comment, @typescript-eslint/no-unsafe-argument */
 
+import * as polyfill from 'abort-controller'
+
+if (!globalThis.AbortController) {
+  globalThis.AbortController = polyfill.AbortController
+}
+if (!globalThis.AbortSignal) {
+  globalThis.AbortSignal = polyfill.AbortSignal
+}
+
 import {
   ABORT_REQUEST_METHOD,
   ERROR_CODE,
