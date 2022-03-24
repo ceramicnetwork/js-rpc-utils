@@ -1,5 +1,14 @@
 /* eslint-disable @typescript-eslint/no-unsafe-assignment */
 
+import * as polyfill from 'abort-controller'
+
+if (!globalThis.AbortController) {
+  globalThis.AbortController = polyfill.AbortController
+}
+if (!globalThis.AbortSignal) {
+  globalThis.AbortSignal = polyfill.AbortSignal
+}
+
 import { abortable, abortedReasonSymbol, isAborted } from '../src'
 
 function delayResolve<T = any>(value: T, time = 0): Promise<T> {
